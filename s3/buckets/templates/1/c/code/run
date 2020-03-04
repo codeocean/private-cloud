@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -ex
+
+input_data="../data/sample-data.txt"
+
+gcc -o helloworld helloworld.c
+./helloworld $input_data

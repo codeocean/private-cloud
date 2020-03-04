@@ -1,0 +1,61 @@
+# Default server
+server {
+    listen 80;
+    listen [::]:80;
+
+    # Prevent access if not from allowed domain names
+    location / {
+        return 444;
+    }
+
+    # Answer load balancer health checks
+    location = /health {
+        return 200;
+    }
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+
+    server_name {{config.domains.app}} *.{{config.domains.app}};
+
+    root /usr/share/nginx/html;
+
+    # Do not allow embedding into other sites
+    add_header X-Frame-Options "SAMEORIGIN" always;
+
+    # No caching by default
+    expires -1;
+
+    location / {
+        index index.html;
+
+        # First attempt to serve request as file, then
+        # fall back to the index.html file.
+        try_files $uri /index.html;
+
+        location = /algo.html {
+            # Allow embedding widget in other sites
+            add_header X-Frame-Options "" always;
+        }
+
+        # Caching rules for static content
+
+        # CSS and Javascript
+        location = /widget.js {
+            expires -1;
+        }
+        location ~* \.(?:css|js)$ {
+            expires 1y;
+        }
+
+        # Media: images, icons
+        location ^~ /assets/images/ {
+            expires 1y;
+        }
+        location ~* \.(?:png|jpg|jpeg|gif|svg)$ {
+            expires 1d;
+        }
+    }
+}

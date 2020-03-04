@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -ex
+
+plot_title="Hello Code Ocean"
+number_of_cycles=3
+input_data="../data/sample-data.txt"
+
+python -u main.py "$plot_title" $number_of_cycles $input_data

@@ -1,0 +1,1 @@
+REDIS_PASSWORD={{secrets.redis.password}}

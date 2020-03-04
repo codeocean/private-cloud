@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -ex
+
+input_data="../data/sample-data.txt"
+
+luajit HelloWorld.lua $input_data

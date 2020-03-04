@@ -1,0 +1,66 @@
+{
+	"ListenPort": 8200,
+	"SlotScheduling": true,
+	"AlgorithmMountPath": "/data/worker",
+	"DatasetsFolder": "/data/datasets",
+	"LiveMachineNetType": "compose",
+	"LiveMachineHost": "https://{{config.domains.cloudWorkstation}}",
+	"ToolsFolder":	"/codeocean-tools",
+	"Docker": {
+		"UseEnv": false,
+		"PrivateRegistryHost": "{{config.services.registryHost}}",
+		"Network": "codeocean_computation"
+	},
+	"Storage": {
+		"Region": "{{config.aws.region}}",
+		"Bucket": "{{buckets.results}}",
+		"LicenseBucket": "{{buckets.licenses}}"
+	},
+	"Redis": {
+		"Address": "redis",
+		"Port": 6379,
+		"Password": "{{secrets.redis.password}}",
+		"Database": 0
+	},
+	"Services": {
+		"AlgorithmServiceHost": "http://wapi:8201",
+		"AnalyticsServiceHost": "http://wapi:8201",
+		"CollaborationServiceHost": "http://wapi:8201",
+		"ComputationServiceHost": "http://wapi:8201",
+		"CWProxyServiceHost": "http://wapi:8201",
+		"DatasetServiceHost": "http://wapi:8201",
+		"DockerImageServiceHost": "http://wapi:8201",
+		"FileServiceHost": "http://wapi:8201",
+		"IdeServiceHost": "http://wapi:8201",
+		"InstallerServiceHost": "http://wapi:8201",
+		"LanguageServiceHost": "http://wapi:8201",
+		"RunConfigurationServiceHost": "http://wapi:8201",
+		"UserServiceHost": "http://wapi:8201",
+		"WorkspaceServiceHost": "http://wapi:8201"
+	},
+	"WDT": {
+		"DockerImage": "524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/wdt:2019-02-14-b8f978f",
+		"UsernsMode": "",
+		"Network": "codeocean_default"
+	},
+	"Git": {
+		"DockerImage": "524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/git:2019-03-14-a5f7d08"
+	},
+	"Tools": {
+		"DockerImage": "524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/tools:2020-02-13-2b55c3c"
+	},
+	"Slot": {
+		"CPU": 1.0,
+		"Memory": 8129604096
+	},
+	"GiteaProxyURL": "https://{{config.domains.git}}",
+	"Conversions": {
+		"ps": "pdf",
+		"eps": "pdf",
+		"ppm": "png",
+		"pgm": "png",
+		"pbm": "png",
+		"tif": "png",
+		"tiff": "png"
+	}
+}

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -ex
+
+input_data="../data/sample-data.txt"
+
+javac *.java
+java HelloWorld $input_data

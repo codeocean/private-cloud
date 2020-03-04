@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -ex
+
+input_data="../data/sample-data.txt"
+
+gfortran -o helloworld main.f90
+echo "Running helloworld with argument $input_data:"
+./helloworld $input_data

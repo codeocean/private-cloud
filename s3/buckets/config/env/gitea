@@ -1,0 +1,4 @@
+GITEA_PASSWD={{secrets.gitea.adminPassword}}
+AUX_PASSWD={{secrets.gitea.auxPassword}}
+COMMON_PASSWD={{secrets.gitea.commonPassword}}
+READONLY_PASSWD={{secrets.gitea.readonlyPassword}}

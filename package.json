@@ -1,0 +1,16 @@
+{
+    "name": "private-cloud",
+    "private": true,
+    "devDependencies": {
+        "@types/mime": "^2.0.1",
+        "@types/node": "^12.12.26"
+    },
+    "dependencies": {
+        "@pulumi/aws": "^1.20.0",
+        "@pulumi/awsx": "^0.18.14",
+        "@pulumi/pulumi": "^1.10.0",
+        "@pulumi/random": "^1.5.0",
+        "@pulumi/tls": "^1.4.0",
+        "handlebars": "^4.7.3"
+    }
+}

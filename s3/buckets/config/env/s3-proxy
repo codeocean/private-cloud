@@ -1,0 +1,3 @@
+ASSETS_BUCKET={{buckets.assets}}
+DATASETS_BUCKET={{buckets.datasets}}
+PUBLIC_BUCKET={{buckets.public}}

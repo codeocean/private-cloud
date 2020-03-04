@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -ex
+
+# use stata-se or stata-mp instead to access more memory and cores
+stata main.do

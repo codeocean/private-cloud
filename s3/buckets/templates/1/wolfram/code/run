@@ -1,0 +1,3 @@
+#!/bin/bash
+
+wolframscript -file main.wls

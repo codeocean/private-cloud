@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -ex
+
+input_data="../data/sample-data.txt"
+
+perl main.pl $input_data

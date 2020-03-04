@@ -1,0 +1,336 @@
+General:
+  APIBasePath: /api
+  BaseURL: https://{{config.domains.app}}
+  FilesURITemplate: https://{{config.domains.files}}/files/{owner_id}/{capsule_id}{+path}
+  GiteaProxyBaseURL: https://{{config.domains.git}}
+  NetworkType: compose
+Security:
+  TrustForwardedHeaders: true
+  TrustedGitHosts:
+    - github.com
+    - gitlab.com
+    - bitbucket.org
+  TokenExpiration: 24h
+  FileTokenExpiration: 1h
+  FileTokenCookieDomain: {{config.domains.files}}
+  SecureTokens: true
+  UseCors: false
+  {{#if secrets.auth.builtin.reCaptchaApiKey}}
+  ReCaptchaAPIKey: {{secrets.auth.builtin.reCaptchaApiKey}}
+  {{/if}}
+Auth:
+  DisableBuiltinSignup: true
+  PrivateKeyPath: /app/keys/app.rsa
+  PublicKeyPath: /app/keys/app.rsa.pub
+  SAML:
+    PrivateKeyPath: /app/keys/app.key
+    PublicKeyPath: /app/keys/app.cert
+    {{#if config.auth.saml}}
+    {{#with config.auth.saml}}
+    IdentityProviders:
+      - Domain: {{domain}}
+        MetadataURL: {{metadataUrl}}
+    {{/with}}
+    {{/if}}
+  OAuth2:
+    {{#if config.auth.allowedDomains}}
+    AllowedDomains:
+      {{#each config.auth.allowedDomains}}
+      - {{this}}
+      {{/each}}
+    {{~/if}}
+    {{#if config.auth.google.clientID}}
+    Google:
+      ClientID: {{config.auth.google.clientID}}
+      ClientSecret: {{secrets.auth.google.clientSecret}}
+    {{/if}}
+AWS:
+  AccountID: {{config.aws.accountId}}
+  Region: {{config.aws.region}}
+  S3:
+    BaseURL: https://{{config.domains.app}}/s3
+    Buckets:
+      Assets: {{buckets.assets}}
+      Datasets: {{buckets.datasets}}
+      Licenses: {{buckets.licenses}}
+      Public: {{buckets.public}}
+      Results: {{buckets.results}}
+      Temp: {{buckets.temp}}
+      Templates: {{buckets.templates}}
+  EC2:
+    DedicatedMachineLaunchTemplate: {{dedicatedMachineLaunchTemplateID}}
+    DedicatedMachineLaunchTemplateVersion: {{dedicatedMachineLaunchTemplateVersion}}
+DiskStorage:
+  WorkspacesPath: /data/workspaces
+  DatasetsPath: /data/datasets
+  WorkerPath: /data/worker
+  RationalDataPath: /data
+  Overlay:
+    RepoDir: repo
+    OverlayDir: overlay
+    WorkDir: work
+    Fallback: false
+CouchDB:
+  URL: http://couchdb:5984
+  Username: admin
+  Password: {{secrets.couchdb.adminPassword}}
+Docker:
+  RegistryHost: {{config.services.registryHost}}
+  DeployForTesting: false
+  DeleteDeployedImages: false
+Gitea:
+  URL: http://gitea:3030
+  AdminUser: gitea
+  AdminPassword: {{secrets.gitea.adminPassword}}
+  CommonPassword: {{secrets.gitea.commonPassword}}
+  VerificationUser: co-verification
+  VerifiedUser: verified
+  AuxPassword: {{secrets.gitea.auxPassword}}
+  ReadOnlyUser: readonly
+  ReadOnlyPassword: {{secrets.gitea.readonlyPassword}}
+Redis:
+  Address: redis:6379
+  Password: {{secrets.redis.password}}
+Elasticsearch:
+  URL: http://es:9200
+WDT:
+  DockerImage: 524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/wdt:2019-02-14-b8f978f
+  TempDir: wdt_temp
+  Network: {{#if config.deployment.singleInstance}}codeocean_default{{else}}host{{/if}}
+  PortRangeBegin: 20000
+  PortRangeEnd: 30000
+Tools:
+  DockerImage: 524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/tools:2020-02-13-2b55c3c
+Segment:
+  StatInterval: 3600
+InitData:
+  Affiliations: false
+  Fields: true
+  Licenses: true
+  Journals: false
+  Languages:
+    Matlab: true
+    Octave: true
+    R: true
+    Julia: true
+    Python: true
+    C: true
+    Fortran: true
+    Java: true
+    Perl: true
+    Lua: true
+    Stata: true
+    Wolfram: true
+    Other: true
+Resources:
+  MachineTypes:
+    0:
+      Slot:
+        CPU: 1.0
+        Memory: 8380219392
+      DefaultClass: small
+      Classes:
+        small:
+          Name: Small
+          Description: 2 cores / 16 GB RAM
+          Order: 1
+          Resources:
+            Slots: 2
+        medium:
+          Name: Medium
+          Description: 8 cores / 64 GB RAM
+          Order: 2
+          Resources:
+            Slots: 8
+        large:
+          Name: Large
+          Description: 16 cores / 128 GB RAM
+          Order: 3
+          Resources:
+            Slots: 16
+DedicatedMachines:
+  InstanceTypes:
+    - t2.nano
+    - t2.micro
+    - t2.small
+    - t2.medium
+    - t2.large
+    - t2.xlarge
+    - t2.2xlarge
+    - t3.nano
+    - t3.micro
+    - t3.small
+    - t3.medium
+    - t3.large
+    - t3.xlarge
+    - t3.2xlarge
+    - m4.large
+    - m4.xlarge
+    - m4.2xlarge
+    - m4.4xlarge
+    - m4.10xlarge
+    - m4.16xlarge
+    - m5.large
+    - m5.xlarge
+    - m5.2xlarge
+    - m5.4xlarge
+    - m5.8xlarge
+    - m5.12xlarge
+    - m5.16xlarge
+    - m5.24xlarge
+    - m5n.large
+    - m5n.xlarge
+    - m5n.2xlarge
+    - m5n.4xlarge
+    - m5n.8xlarge
+    - m5n.12xlarge
+    - m5n.16xlarge
+    - m5n.24xlarge
+    - c4.large
+    - c4.xlarge
+    - c4.2xlarge
+    - c4.4xlarge
+    - c4.8xlarge
+    - c5.large
+    - c5.xlarge
+    - c5.2xlarge
+    - c5.4xlarge
+    - c5.9xlarge
+    - c5.12xlarge
+    - c5.18xlarge
+    - c5.24xlarge
+    - c5n.large
+    - c5n.xlarge
+    - c5n.2xlarge
+    - c5n.4xlarge
+    - c5n.9xlarge
+    - c5n.12xlarge
+    - c5n.18xlarge
+    - r4.large
+    - r4.xlarge
+    - r4.2xlarge
+    - r4.4xlarge
+    - r4.8xlarge
+    - r4.16xlarge
+    - r5.large
+    - r5.xlarge
+    - r5.2xlarge
+    - r5.4xlarge
+    - r5.8xlarge
+    - r5.12xlarge
+    - r5.16xlarge
+    - r5.24xlarge
+    - r5n.large
+    - r5n.xlarge
+    - r5n.2xlarge
+    - r5n.4xlarge
+    - r5n.8xlarge
+    - r5n.12xlarge
+    - r5n.16xlarge
+    - r5n.24xlarge
+  RecommendedInstanceTypes:
+    - r5.8xlarge
+    - r5.16xlarge
+    - r5.24xlarge
+Features:
+  DisableAnalytics: true
+  DisableIntercom: true
+  DisablePublication: true
+  {{#if config.features.onboarding}}
+  Onboarding: {{config.features.onboarding}}
+  {{/if}}
+  SlotScheduling: true
+  {{#if config.features.dedicatedMachines}}
+  DedicatedMachines: true
+  {{/if}}
+  UseRInstallPackages: {{config.features.useRInstallPackages}}
+  NonAdminListUsers: true
+Services:
+  affiliation:
+    URL: http://afil:8091
+  algorithm:
+    URL: http://algo:8082
+  analytic:
+    URL: http://analytics:8093
+  article:
+    URL: http://arti:8104
+  auth:
+    URL: http://auth:8108
+  collaboration:
+    URL: http://cola:8094
+  computation:
+    URL: http://comp:8088
+  cw-proxy:
+    URL: http://cw-proxy:8114
+  dataset:
+    URL: http://dset:8099
+  dimage:
+    URL: http://dimage:8113
+  image:
+    URL: http://dock:8090
+  field:
+    URL: http://field:8084
+  file:
+    URL: http://file:8501
+  file-internal:
+    URL: http://file-internal:8501
+  extension:
+    URL: http://ext:8110
+  git-proxy:
+    URL: http://git-proxy:3050
+  group:
+    URL: http://group:8112
+  gw:
+    URL: http://gw:8080
+  ide:
+    URL: http://ide:8109
+  installer:
+    URL: http://inst:8102
+  job:
+    URL: http://job:8105
+  journal:
+    URL: http://jrnl:8098
+  language:
+    URL: http://lang:8083
+  license:
+    URL: http://lice:8097
+  machine:
+    URL: http://mach:8115
+  maintenance:
+    URL: http://maint:8300
+  notification:
+    URL: http://noti:8101
+  organization:
+    URL: http://org:8111
+  papi:
+    URL: http://papi:8070
+  payment:
+    URL: http://pay:8100
+  publisher:
+    URL: http://pub:8103
+  pubsim:
+    URL: http://pubsim:8071
+  registry:
+    URL: http://registry:5000
+  result:
+    URL: http://result:8503
+  runconfig:
+    URL: http://runcfg:8092
+  rungui:
+    URL: http://runi:8095
+  starring:
+    URL: http://star:8085
+  status:
+    URL: http://stat:8106
+  swot:
+    URL: http://swot:9900
+  token:
+    URL: http://token:8107
+  user:
+    URL: http://users:8081
+  viewing:
+    URL: http://view:8086
+  worker:
+    URL: http://worker:8200
+  workspace:
+    URL: http://workspace:8500
