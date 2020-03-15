@@ -3,8 +3,10 @@
 	"SlotScheduling": true,
 	"AlgorithmMountPath": "/data/worker",
 	"DatasetsFolder": "/data/datasets",
-	"LiveMachineNetType": "compose",
-	"LiveMachineHost": "https://{{config.domains.cloudWorkstation}}",
+	"CloudWorkstation": {
+		"NetType": "compose",
+		"Host": "https://{{config.domains.cloudWorkstation}}"
+	},
 	"ToolsFolder":	"/codeocean-tools",
 	"Docker": {
 		"UseEnv": false,

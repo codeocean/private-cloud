@@ -76,9 +76,9 @@ ns-673.awsdns-20.net.
 
 ## System Initialization
 
-1. Signup. First user to signup receives admin access to the system.
-1. Go to admin panel.
-1. Under Initialize System Data click Select All.
+1. Go to `https://codeocean.[acmecorp].com/join` to create an admin account.
+1. In the admin panel, go to Initialize System Data on the left.
+1. Click Select All.
 1. Click Initialize System Data and wait for the `done` indication.
 
 ## Base Image Deployment

@@ -70,6 +70,8 @@ DiskStorage:
     OverlayDir: overlay
     WorkDir: work
     Fallback: false
+CloudWorkstation:
+  IdleTimeout: 1440  # 24 hrs
 CouchDB:
   URL: http://couchdb:5984
   Username: admin
@@ -136,16 +138,22 @@ Resources:
           Order: 1
           Resources:
             Slots: 2
+        2xsmall:
+          Name: 2x Small
+          Description: 4 cores / 32 GB RAM
+          Order: 2
+          Resources:
+            Slots: 4
         medium:
           Name: Medium
           Description: 8 cores / 64 GB RAM
-          Order: 2
+          Order: 3
           Resources:
             Slots: 8
         large:
           Name: Large
           Description: 16 cores / 128 GB RAM
-          Order: 3
+          Order: 4
           Resources:
             Slots: 16
 DedicatedMachines:

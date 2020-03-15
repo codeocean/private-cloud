@@ -127,12 +127,12 @@ export const features: FeaturesConfig = {
 
 export const ami: AMIConfig = {
     services: {
-        "us-east-1": config.get("services.ami") || "ami-0d42cf6448395315d",
-        "eu-central-1": config.get("services.ami") || "ami-0216d71f62573c9a9",
+        "us-east-1": config.get("services.ami") || "ami-006f6b3344edb4db0",
+        "eu-central-1": config.get("services.ami") || "ami-012a61be3c7523e25",
     },
     worker: {
-        "us-east-1": config.get("workers.ami") || "ami-0e7d617510a85b205",
-        "eu-central-1": config.get("workers.ami") || "ami-0291c8d731a62125e",
+        "us-east-1": config.get("workers.ami") || "ami-036e1c18fc7511cb1",
+        "eu-central-1": config.get("workers.ami") || "ami-0f9d12654a5f657fe",
     },
 }
 

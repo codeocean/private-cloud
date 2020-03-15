@@ -8,9 +8,12 @@
 	"StatsExpiration": 3,
 	"AlgorithmMountPath": "/worker",
 	"DatasetsFolder": "/datasets",
-	"LiveMachineNetType": "host",
-	"LiveMachineHost": "https://{{config.domains.cloudWorkstation}}",
-	"LiveMachineDisableTimeout": true,
+	"CloudWorkstation": {
+		"NetType": "host",
+		"Host": "https://{{config.domains.cloudWorkstation}}",
+		"CPUUsageActiveThreshold": 2,
+		"GPUUsageActiveThreshold": 10
+	},
 	"ToolsFolder":	"/codeocean-tools",
 	"Docker": {
 		"UseEnv": false,
