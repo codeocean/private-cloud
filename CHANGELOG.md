@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.2.1 (2020-04-05)
+
+- Enable Advanced Compute Resources selection
+
 ## 0.2.0 (2020-03-15)
 
 - Add support for cloud workstation idle timeout

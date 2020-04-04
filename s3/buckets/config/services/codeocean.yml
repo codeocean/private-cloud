@@ -156,6 +156,18 @@ Resources:
           Order: 4
           Resources:
             Slots: 16
+    1:
+      Slot:
+        CPU: 1.0
+        Memory: 8380219392
+      DefaultClass: small
+      Classes:
+        small:
+          Name: Small
+          Description: 4 cores / 32 GB RAM
+          Order: 1
+          Resources:
+            Slots: 4
 DedicatedMachines:
   InstanceTypes:
     - t2.nano
@@ -248,9 +260,9 @@ Features:
   Onboarding: {{config.features.onboarding}}
   {{/if}}
   SlotScheduling: true
-  {{#if config.features.dedicatedMachines}}
+  {{#unless config.features.disableDedicatedMachines}}
   DedicatedMachines: true
-  {{/if}}
+  {{/unless}}
   UseRInstallPackages: {{config.features.useRInstallPackages}}
   NonAdminListUsers: true
 Services:

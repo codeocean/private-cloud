@@ -60,7 +60,7 @@ interface WorkerConfig {
 }
 
 interface FeaturesConfig {
-    dedicatedMachines: boolean,
+    disableDedicatedMachines: boolean,
     onboarding: string | undefined,
     useRInstallPackages: boolean,
 }
@@ -120,19 +120,19 @@ export const workers: WorkerConfig = {
 }
 
 export const features: FeaturesConfig = {
-    dedicatedMachines: config.getBoolean("features.dedicatedMachines") === true,
+    disableDedicatedMachines: config.getBoolean("features.disableDedicatedMachines") === true,
     onboarding: config.get("features.onboarding"),
     useRInstallPackages: config.getBoolean("features.useRInstallPackages") === true,
 }
 
 export const ami: AMIConfig = {
     services: {
-        "us-east-1": config.get("services.ami") || "ami-006f6b3344edb4db0",
-        "eu-central-1": config.get("services.ami") || "ami-012a61be3c7523e25",
+        "us-east-1": config.get("services.ami") || "ami-003b2e289fd9a903f",
+        "eu-central-1": config.get("services.ami") || "ami-0ca59262581285fe0",
     },
     worker: {
-        "us-east-1": config.get("workers.ami") || "ami-036e1c18fc7511cb1",
-        "eu-central-1": config.get("workers.ami") || "ami-0f9d12654a5f657fe",
+        "us-east-1": config.get("workers.ami") || "ami-0ca0badbbee48646a",
+        "eu-central-1": config.get("workers.ami") || "ami-0c34e59060793f421",
     },
 }
 
