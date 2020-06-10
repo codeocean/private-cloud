@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+## 0.3.0 (2020-06-10)
+
+- Asset Management: support for datasets
+- Capsule publishing
+- CloudWatch alarms for monitoring
+- Add X-Small compute resource class
+- Improved workers scale out policies to avoid excess machines
+- Support for analytics reporting via Segment
+- Consistent resource tagging
+- Linting with ESLint
+
 ## 0.2.1 (2020-04-05)
 
 - Enable Advanced Compute Resources selection

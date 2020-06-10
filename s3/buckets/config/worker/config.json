@@ -25,7 +25,8 @@
 	"Storage": {
 		"Region": "{{config.aws.region}}",
 		"Bucket": "{{buckets.results}}",
-		"LicenseBucket": "{{buckets.licenses}}"
+		"LicenseBucket": "{{buckets.licenses}}",
+		"DatasetsBucket": "{{buckets.datasets}}"
 	},
 	"Redis": {
 		"Address": "redis.svc",
@@ -44,6 +45,7 @@
 		"FileServiceHost": "http://wapi.svc:8201",
 		"IdeServiceHost": "http://wapi.svc:8201",
 		"InstallerServiceHost": "http://wapi.svc:8201",
+		"JobServiceHost": "http://wapi.svc:8201",
 		"LanguageServiceHost": "http://wapi.svc:8201",
 		"RunConfigurationServiceHost": "http://wapi.svc:8201",
 		"UserServiceHost": "http://wapi.svc:8201",
@@ -58,7 +60,7 @@
 		"DockerImage": "524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/git:2019-03-14-a5f7d08"
 	},
 	"Tools": {
-		"DockerImage": "524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/tools:2020-02-13-2b55c3c"
+		"DockerImage": "524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/tools:2020-05-04-245b207"
 	},
 	"Slot": {
 		"CPU": 1.0,

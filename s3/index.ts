@@ -1,5 +1,6 @@
 import * as aws from "@pulumi/aws"
 import * as pulumi from "@pulumi/pulumi"
+
 import * as config from "../config"
 import { Bucket } from "./bucket"
 
@@ -55,11 +56,27 @@ export const configBucket = new Bucket("config", { accessLogsBucket })
 
 export const datasetsBucket = new Bucket("datasets", {
     accessLogsBucket,
-    allowVpcList: true,
-    allowVpcRead: true,
     extraArgs: {
+        versioning: {
+            enabled: true,
+        },
+        lifecycleRules: [
+            {
+                enabled: true,
+                id: "Move old versions to Glacier",
+                noncurrentVersionTransitions: [
+                    {
+                        days: 30,
+                        storageClass: "GLACIER",
+                    },
+                ],
+                abortIncompleteMultipartUploadDays: 7,
+            },
+        ],
         forceDestroy: true,
     },
+}, {
+    protect: true,
 })
 
 export const licensesBucket = new Bucket("licenses", {

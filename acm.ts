@@ -1,4 +1,5 @@
 import * as aws from "@pulumi/aws"
+
 import * as config from "./config"
 
 export const sslCert = new aws.acm.Certificate("ssl-cert", {
@@ -7,7 +8,7 @@ export const sslCert = new aws.acm.Certificate("ssl-cert", {
         `*.${config.domains.app}`,
     ],
     tags: {
-        "deployment": config.deploymentName,
+        deployment: config.deploymentName,
     },
     validationMethod: "DNS",
 })

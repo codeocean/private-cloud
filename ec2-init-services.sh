@@ -21,6 +21,11 @@ fi
 echo "UUID=$(blkid -s UUID -o value /dev/nvme2n1)  /data  xfs defaults 0 2" >> /etc/fstab
 mount /data
 
+# Mount EFS
+mkdir /datasets
+echo "{{datasetsEfsId}}:/ /datasets efs _netdev,tls,iam 0 0" >> /etc/fstab
+mount /datasets
+
 # Set the config bucket configuration
 echo 'CONFIG_BUCKET="{{configBucketName}}"' >> /etc/default/codeocean
 

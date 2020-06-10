@@ -1,5 +1,7 @@
 import * as aws from "@pulumi/aws"
+
 import * as acm from "./acm"
+import * as config from "./config"
 import * as ec2 from "./ec2"
 import * as s3 from "./s3"
 import * as vpc from "./vpc"
@@ -10,23 +12,29 @@ export const externalAlb = new aws.elasticloadbalancingv2.LoadBalancer("external
     accessLogs: {
         bucket: s3.accessLogsBucket.bucket,
         enabled: true,
-        prefix: "load-balacing"
+        prefix: "load-balacing",
     },
     enableHttp2: false,
     idleTimeout: 4000,
     securityGroups: [vpc.sgExternal.id],
     subnets: vpc.vpc.publicSubnetIds,
+    tags: {
+        deployment: config.deploymentName,
+    },
 }, {
     dependsOn: s3.accessLogsBucketPolicy,
 })
 
-const webTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("web", {
+export const webTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("web", {
     healthCheck: {
         path: "/health",
     },
     port: 8001,
     protocol: "HTTP",
     vpcId: vpc.vpc.id,
+    tags: {
+        deployment: config.deploymentName,
+    },
 })
 
 const gwTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("gw", {
@@ -36,6 +44,9 @@ const gwTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("gw", {
     port: 8080,
     protocol: "HTTP",
     vpcId: vpc.vpc.id,
+    tags: {
+        deployment: config.deploymentName,
+    },
 })
 
 const fileProxyTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("file-proxy", {
@@ -45,6 +56,9 @@ const fileProxyTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("file-pr
     port: 8504,
     protocol: "HTTP",
     vpcId: vpc.vpc.id,
+    tags: {
+        deployment: config.deploymentName,
+    },
 })
 
 const cwProxyTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("cw-proxy", {
@@ -54,6 +68,9 @@ const cwProxyTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("cw-proxy"
     port: 8114,
     protocol: "HTTP",
     vpcId: vpc.vpc.id,
+    tags: {
+        deployment: config.deploymentName,
+    },
 })
 
 const gitProxyTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("git-proxy", {
@@ -63,15 +80,21 @@ const gitProxyTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("git-prox
     port: 3050,
     protocol: "HTTP",
     vpcId: vpc.vpc.id,
+    tags: {
+        deployment: config.deploymentName,
+    },
 })
 
 const s3ProxyTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("s3-proxy", {
     healthCheck: {
         path: "/health",
     },
-    port: 8505,
+    port: 7090,
     protocol: "HTTP",
     vpcId: vpc.vpc.id,
+    tags: {
+        deployment: config.deploymentName,
+    },
 })
 
 new aws.elasticloadbalancingv2.Listener("external-http", {
@@ -126,6 +149,38 @@ new aws.elasticloadbalancingv2.ListenerRule("file-proxy-auth-callback", {
     conditions: [{
         pathPattern: {
             values: ["/files_auth_callback"],
+        },
+    }],
+    listenerArn: listener.arn,
+    priority: priority++,
+}, {
+    deleteBeforeReplace: true,
+})
+
+new aws.elasticloadbalancingv2.ListenerRule("file-proxy-datasets", {
+    actions: [{
+        type: "forward",
+        targetGroupArn: fileProxyTargetGroup.arn,
+    }],
+    conditions: [{
+        pathPattern: {
+            values: ["/datasets/*"],
+        },
+    }],
+    listenerArn: listener.arn,
+    priority: priority++,
+}, {
+    deleteBeforeReplace: true,
+})
+
+new aws.elasticloadbalancingv2.ListenerRule("file-proxy-datasets-auth-callback", {
+    actions: [{
+        type: "forward",
+        targetGroupArn: fileProxyTargetGroup.arn,
+    }],
+    conditions: [{
+        pathPattern: {
+            values: ["/datasets_auth_callback"],
         },
     }],
     listenerArn: listener.arn,
@@ -234,11 +289,14 @@ export const internalAlb = new aws.elasticloadbalancingv2.LoadBalancer("services
     accessLogs: {
         bucket: s3.accessLogsBucket.bucket,
         enabled: true,
-        prefix: "load-balacing"
+        prefix: "load-balacing",
     },
     internal: true,
     subnets: vpc.vpc.privateSubnetIds,
     securityGroups: [vpc.sgServices.id],
+    tags: {
+        deployment: config.deploymentName,
+    },
 }, {
     dependsOn: s3.accessLogsBucketPolicy,
 })
@@ -250,6 +308,9 @@ const registryTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("registry
     port: 5000,
     protocol: "HTTP",
     vpcId: vpc.vpc.id,
+    tags: {
+        deployment: config.deploymentName,
+    },
 })
 
 new aws.elasticloadbalancingv2.Listener("internal-https", {

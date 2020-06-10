@@ -1,10 +1,11 @@
-import * as pulumi from "@pulumi/pulumi"
 import * as aws from "@pulumi/aws"
+import * as pulumi from "@pulumi/pulumi"
+
 import * as config from "../config"
-import * as keys from "../keys"
-import * as s3 from "."
 import * as dedicatedMachines from "../dedicated-machines"
+import * as keys from "../keys"
 import * as secrets from "../secrets"
+import * as s3 from "."
 
 const accountId = pulumi.output(aws.getCallerIdentity()).accountId
 

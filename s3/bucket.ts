@@ -1,9 +1,12 @@
 import * as fs from "fs"
-import * as mime from "mime"
-import * as path from "path"
-import * as handlebars from "handlebars"
 import * as aws from "@pulumi/aws"
+
+import * as path from "path"
+
 import * as pulumi from "@pulumi/pulumi"
+import * as handlebars from "handlebars"
+import * as mime from "mime"
+
 import * as config from "../config"
 import * as vpc from "../vpc"
 

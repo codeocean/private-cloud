@@ -1,9 +1,14 @@
 import * as aws from "@pulumi/aws"
 import * as awsx from "@pulumi/awsx"
+
 import * as config from "./config"
 
+
 export const vpc = new awsx.ec2.Vpc("vpc", {
-   numberOfAvailabilityZones: 2,
+    numberOfAvailabilityZones: 2,
+    tags: {
+        deployment: config.deploymentName,
+    },
 })
 
 export const sgExternal = new aws.ec2.SecurityGroup("external", {
@@ -27,6 +32,9 @@ export const sgExternal = new aws.ec2.SecurityGroup("external", {
         cidrBlocks: ["0.0.0.0/0"],
         ipv6CidrBlocks: ["::/0"],
     }],
+    tags: {
+        deployment: config.deploymentName,
+    },
 })
 
 export const sgServices = new aws.ec2.SecurityGroup("services", {
@@ -38,48 +46,51 @@ export const sgServices = new aws.ec2.SecurityGroup("services", {
         cidrBlocks: ["0.0.0.0/0"],
     }],
     ingress: [{
-       protocol: "tcp",
-       fromPort: 3050,
-       toPort: 3050,
-       securityGroups: [sgExternal.id],
-       description: "git-proxy",
+        protocol: "tcp",
+        fromPort: 3050,
+        toPort: 3050,
+        securityGroups: [sgExternal.id],
+        description: "git-proxy",
     }, {
-       protocol: "tcp",
-       fromPort: 8001,
-       toPort: 8001,
-       securityGroups: [sgExternal.id],
-       description: "web",
+        protocol: "tcp",
+        fromPort: 0,
+        toPort: 7090,
+        securityGroups: [sgExternal.id],
+        description: "s3-proxy",
     }, {
-       protocol: "tcp",
-       fromPort: 8080,
-       toPort: 8080,
-       securityGroups: [sgExternal.id],
-       description: "gw",
+        protocol: "tcp",
+        fromPort: 8001,
+        toPort: 8001,
+        securityGroups: [sgExternal.id],
+        description: "web",
     }, {
-       protocol: "tcp",
-       fromPort: 8114,
-       toPort: 8114,
-       securityGroups: [sgExternal.id],
-       description: "cw-proxy",
+        protocol: "tcp",
+        fromPort: 8080,
+        toPort: 8080,
+        securityGroups: [sgExternal.id],
+        description: "gw",
     }, {
-       protocol: "tcp",
-       fromPort: 8504,
-       toPort: 8504,
-       securityGroups: [sgExternal.id],
-       description: "file-proxy",
+        protocol: "tcp",
+        fromPort: 8114,
+        toPort: 8114,
+        securityGroups: [sgExternal.id],
+        description: "cw-proxy",
     }, {
-       protocol: "tcp",
-       fromPort: 8505,
-       toPort: 8505,
-       securityGroups: [sgExternal.id],
-       description: "s3-proxy",
+        protocol: "tcp",
+        fromPort: 8504,
+        toPort: 8504,
+        securityGroups: [sgExternal.id],
+        description: "file-proxy",
     }, {
-       protocol: "tcp",
-       fromPort: 0,
-       toPort: 65535,
-       self: true,
-       description: "self",
+        protocol: "tcp",
+        fromPort: 0,
+        toPort: 65535,
+        self: true,
+        description: "self",
     }],
+    tags: {
+        deployment: config.deploymentName,
+    },
 })
 
 export const sgWorkers = new aws.ec2.SecurityGroup("workers", {
@@ -91,18 +102,47 @@ export const sgWorkers = new aws.ec2.SecurityGroup("workers", {
         cidrBlocks: ["0.0.0.0/0"],
     }],
     ingress: [{
-       protocol: "tcp",
-       fromPort: 8200,
-       toPort: 8200,
-       securityGroups: [sgServices.id],
-       description: "services to worker proxies",
+        protocol: "tcp",
+        fromPort: 8200,
+        toPort: 8200,
+        securityGroups: [sgServices.id],
+        description: "services to worker proxies",
     }, {
-       protocol: "tcp",
-       fromPort: 10000,
-       toPort: 65535,
-       securityGroups: [sgServices.id],
-       description: "services to worker runners/computations",
+        protocol: "tcp",
+        fromPort: 10000,
+        toPort: 65535,
+        securityGroups: [sgServices.id],
+        description: "services to worker runners/computations",
     }],
+    tags: {
+        deployment: config.deploymentName,
+    },
+})
+
+export const sgEfs = new aws.ec2.SecurityGroup("efs", {
+    vpcId: vpc.id,
+    egress: [{
+        protocol: "-1",
+        fromPort: 0,
+        toPort: 0,
+        cidrBlocks: ["0.0.0.0/0"],
+    }],
+    ingress: [{
+        protocol: "tcp",
+        fromPort: 2049,
+        toPort: 2049,
+        securityGroups: [sgServices.id],
+        description: "efs from services",
+    }, {
+        protocol: "tcp",
+        fromPort: 2049,
+        toPort: 2049,
+        securityGroups: [sgWorkers.id],
+        description: "efs from workers",
+    }],
+    tags: {
+        deployment: config.deploymentName,
+    },
 })
 
 new aws.ec2.SecurityGroupRule("wapi-from-workers", {
@@ -148,5 +188,8 @@ new aws.ec2.SecurityGroupRule("wdt-from-workers", {
 new aws.ec2.VpcEndpoint("s3", {
     serviceName: `com.amazonaws.${config.aws.region}.s3`,
     vpcId: vpc.id,
-    routeTableIds: vpc.getSubnets("private").map(s => s.routeTable!.id),
+    routeTableIds: vpc.getSubnets("private").map((s) => s.routeTable!.id),
+    tags: {
+        deployment: config.deploymentName,
+    },
 })

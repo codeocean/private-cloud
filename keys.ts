@@ -2,6 +2,7 @@
 // the deployment, such as the application encryption key.
 
 import * as tls from "@pulumi/tls"
+
 import * as config from "./config"
 
 export const appKey = new tls.PrivateKey("app-key", {

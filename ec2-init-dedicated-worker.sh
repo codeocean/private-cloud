@@ -17,6 +17,11 @@ mkfs -t xfs /dev/sdg
 echo "UUID=$(blkid -s UUID -o value /dev/sdg)  /worker  xfs defaults 0 2" >> /etc/fstab
 mount /worker
 
+# Mount EFS
+mkdir /datasets
+echo "{{datasetsEfsId}}:/ /datasets efs _netdev,tls,iam 0 0" >> /etc/fstab
+mount /datasets
+
 # Set the config bucket configuration
 echo 'CONFIG_BUCKET="{{configBucketName}}"' >> /etc/default/codeocean
 # Set as dedicated worker

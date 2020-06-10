@@ -1,15 +1,18 @@
-import * as ebs from "./ebs"
-import * as ec2 from "./ec2"
-import * as lb from "./lb"
-import * as vpc from "./vpc"
-import * as asg from "./asg"
 import "./acm"
 import "./dedicated-machines"
+import "./efs"
 import "./iam"
 import "./cloudwatch"
 import "./route53"
 import "./s3"
 import "./s3/objects"
+import "./sns"
+
+import * as asg from "./asg"
+import * as ebs from "./ebs"
+import * as ec2 from "./ec2"
+import * as lb from "./lb"
+import * as vpc from "./vpc"
 
 // Stack outputs
 export const albDnsName = lb.externalAlb.dnsName

@@ -1,16 +1,21 @@
 {
     "name": "private-cloud",
     "private": true,
-    "devDependencies": {
-        "@types/mime": "^2.0.1",
-        "@types/node": "^12.12.30"
-    },
     "dependencies": {
         "@pulumi/aws": "^1.27.0",
         "@pulumi/awsx": "^0.18.14",
         "@pulumi/pulumi": "^1.13.0",
         "@pulumi/random": "^1.6.0",
         "@pulumi/tls": "^1.5.0",
+        "@types/mime": "^2.0.2",
         "handlebars": "^4.7.3"
+    },
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^3.0.0",
+        "@typescript-eslint/parser": "^3.0.0",
+        "eslint": "^6.8.0",
+        "eslint-config-airbnb-base": "^14.1.0",
+        "eslint-plugin-import": "^2.20.2",
+        "typescript": "^3.9.3"
     }
 }

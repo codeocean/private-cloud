@@ -1,5 +1,7 @@
 import * as aws from "@pulumi/aws"
 import * as pulumi from "@pulumi/pulumi"
+
+import * as config from "./config"
 import * as s3 from "./s3"
 
 // Services
@@ -7,6 +9,9 @@ import * as s3 from "./s3"
 export const servicesInstanceRole = new aws.iam.Role("ServicesInstanceRole", {
     description: "Allows EC2 services instance to call AWS services.",
     assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(aws.iam.Ec2Principal),
+    tags: {
+        deployment: config.deploymentName,
+    },
 })
 
 export const servicesInstanceProfile = new aws.iam.InstanceProfile("ServicesInstanceProfile", {
@@ -14,8 +19,13 @@ export const servicesInstanceProfile = new aws.iam.InstanceProfile("ServicesInst
 })
 
 new aws.iam.RolePolicyAttachment("servicesinstancerole-ssm-policy", {
-     policyArn: "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
-     role: servicesInstanceRole.name,
+    policyArn: "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
+    role: servicesInstanceRole.name,
+})
+
+new aws.iam.RolePolicyAttachment("servicesinstancerole-cloudwatchagent-policy", {
+    policyArn: "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
+    role: servicesInstanceRole.name,
 })
 
 const servicesInstanceS3AccessPolicy = new aws.iam.Policy("ServicesInstanceS3Access", {
@@ -28,19 +38,23 @@ const servicesInstanceS3AccessPolicy = new aws.iam.Policy("ServicesInstanceS3Acc
             Resource: [
                 s3BucketObjectsArn(s3.assetsBucket),
                 s3BucketObjectsArn(s3.configBucket),
+                s3BucketObjectsArn(s3.datasetsBucket),
+                s3BucketObjectsArn(s3.publicBucket),
                 s3BucketObjectsArn(s3.resultsBucket),
                 s3BucketObjectsArn(s3.tempBucket),
                 s3BucketObjectsArn(s3.templatesBucket),
-            ]
+            ],
         }, {
             Effect: "Allow",
             Action: "s3:ListBucket",
             Resource: [
                 s3.configBucket.arn,
+                s3.datasetsBucket.arn,
+                s3.publicBucket.arn,
                 s3.resultsBucket.arn,
                 s3.tempBucket.arn,
                 s3.templatesBucket.arn,
-            ]
+            ],
         }, {
             Effect: "Allow",
             Action: [
@@ -48,17 +62,18 @@ const servicesInstanceS3AccessPolicy = new aws.iam.Policy("ServicesInstanceS3Acc
                 "s3:DeleteObject",
             ],
             Resource: [
+                s3BucketObjectsArn(s3.datasetsBucket),
                 s3BucketObjectsArn(s3.publicBucket),
                 s3BucketObjectsArn(s3.resultsBucket),
                 s3BucketObjectsArn(s3.tempBucket),
-            ]
-        }]
+            ],
+        }],
     },
 })
 
 new aws.iam.RolePolicyAttachment("servicesinstancerole-s3-policy", {
-     policyArn: servicesInstanceS3AccessPolicy.arn,
-     role: servicesInstanceRole.name,
+    policyArn: servicesInstanceS3AccessPolicy.arn,
+    role: servicesInstanceRole.name,
 })
 
 // Workers
@@ -66,6 +81,9 @@ new aws.iam.RolePolicyAttachment("servicesinstancerole-s3-policy", {
 export const workerInstanceRole = new aws.iam.Role("WorkerInstanceRole", {
     description: "Allows EC2 worker instance to call AWS services.",
     assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(aws.iam.Ec2Principal),
+    tags: {
+        deployment: config.deploymentName,
+    },
 })
 
 export const workerInstanceProfile = new aws.iam.InstanceProfile("WorkerInstanceProfile", {
@@ -73,8 +91,13 @@ export const workerInstanceProfile = new aws.iam.InstanceProfile("WorkerInstance
 })
 
 new aws.iam.RolePolicyAttachment("workerinstancerole-ssm-policy", {
-     policyArn: "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
-     role: workerInstanceRole.name,
+    policyArn: "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
+    role: workerInstanceRole.name,
+})
+
+new aws.iam.RolePolicyAttachment("workerinstancerole-cloudwatchagent-policy", {
+    policyArn: "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
+    role: workerInstanceRole.name,
 })
 
 const workerInstanceS3AccessPolicy = new aws.iam.Policy("WorkerInstanceS3Access", {
@@ -88,14 +111,16 @@ const workerInstanceS3AccessPolicy = new aws.iam.Policy("WorkerInstanceS3Access"
                 s3BucketObjectsArn(s3.licensesBucket),
                 s3BucketObjectsArn(s3.configBucket),
                 s3BucketObjectsArn(s3.resultsBucket),
-            ]
+                s3BucketObjectsArn(s3.datasetsBucket),
+            ],
         }, {
             Effect: "Allow",
             Action: "s3:ListBucket",
             Resource: [
                 s3.configBucket.arn,
                 s3.licensesBucket.arn,
-            ]
+                s3.datasetsBucket.arn,
+            ],
         }, {
             Effect: "Allow",
             Action: [
@@ -104,14 +129,15 @@ const workerInstanceS3AccessPolicy = new aws.iam.Policy("WorkerInstanceS3Access"
             ],
             Resource: [
                 s3BucketObjectsArn(s3.resultsBucket),
-            ]
-        }]
+                s3BucketObjectsArn(s3.datasetsBucket),
+            ],
+        }],
     },
 })
 
 new aws.iam.RolePolicyAttachment("workerinstancerole-s3-policy", {
-     policyArn: workerInstanceS3AccessPolicy.arn,
-     role: workerInstanceRole.name,
+    policyArn: workerInstanceS3AccessPolicy.arn,
+    role: workerInstanceRole.name,
 })
 
 const workerInstanceAutoScalingAccessPolicy = new aws.iam.Policy("WorkerInstanceAutoScalingAccess", {
@@ -131,8 +157,8 @@ const workerInstanceAutoScalingAccessPolicy = new aws.iam.Policy("WorkerInstance
 })
 
 new aws.iam.RolePolicyAttachment("workerinstancerole-autoscaling-policy", {
-     policyArn: workerInstanceAutoScalingAccessPolicy.arn,
-     role: workerInstanceRole.name,
+    policyArn: workerInstanceAutoScalingAccessPolicy.arn,
+    role: workerInstanceRole.name,
 })
 
 const workerInstanceCloudWatchAccessPolicy = new aws.iam.Policy("WorkerInstanceCloudWatchAccess", {
@@ -142,7 +168,7 @@ const workerInstanceCloudWatchAccessPolicy = new aws.iam.Policy("WorkerInstanceC
         Statement: [{
             Effect: "Allow",
             Action: [
-                "cloudwatch:PutMetricData"
+                "cloudwatch:PutMetricData",
             ],
             Resource: "*",
         }],
@@ -150,12 +176,12 @@ const workerInstanceCloudWatchAccessPolicy = new aws.iam.Policy("WorkerInstanceC
 })
 
 new aws.iam.RolePolicyAttachment("workerinstancerole-cloudwatch-policy", {
-     policyArn: workerInstanceCloudWatchAccessPolicy.arn,
-     role: workerInstanceRole.name,
+    policyArn: workerInstanceCloudWatchAccessPolicy.arn,
+    role: workerInstanceRole.name,
 })
 
 // Helpers
 
 function s3BucketObjectsArn(bucket: aws.s3.Bucket): pulumi.Output<string> {
-    return pulumi.interpolate `${bucket.arn}/*`
+    return pulumi.interpolate`${bucket.arn}/*`
 }

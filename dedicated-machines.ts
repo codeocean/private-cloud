@@ -1,14 +1,19 @@
+import { Buffer } from "buffer"
 import * as fs from "fs"
-import * as handlebars from "handlebars"
+
 import * as aws from "@pulumi/aws"
+import * as pulumi from "@pulumi/pulumi"
+import * as handlebars from "handlebars"
+
 import * as config from "./config"
-import * as vpc from "./vpc"
-import * as s3 from "./s3"
+import * as efs from "./efs"
 import * as iam from "./iam"
+import * as s3 from "./s3"
+import * as vpc from "./vpc"
 
 const dedicatedWorkerImage = config.ami.worker[config.aws.region]
 
-const accountId = aws.getCallerIdentity().accountId
+const { accountId } = aws.getCallerIdentity()
 
 export const launchTemplate = new aws.ec2.LaunchTemplate("dedicated-worker", {
     tags: {
@@ -24,7 +29,7 @@ export const launchTemplate = new aws.ec2.LaunchTemplate("dedicated-worker", {
             volumeSize: 300,
             encrypted: "true",
             deleteOnTermination: "true",
-        }
+        },
     }, {
         deviceName: "/dev/sdg",
         ebs: {
@@ -40,14 +45,14 @@ export const launchTemplate = new aws.ec2.LaunchTemplate("dedicated-worker", {
             Name: "codeocean-dedicated-worker",
             deployment: "codeocean-private-cloud",
             role: "dedicated-worker",
-        }
+        },
     }, {
         resourceType: "volume",
         tags: {
             Name: "codeocean-dedicated-worker",
             deployment: config.deploymentName,
             role: "dedicated-worker",
-        }
+        },
     }],
     networkInterfaces: [{
         subnetId: vpc.vpc.privateSubnetIds[0],
@@ -57,10 +62,17 @@ export const launchTemplate = new aws.ec2.LaunchTemplate("dedicated-worker", {
     iamInstanceProfile: {
         arn: iam.workerInstanceProfile.arn,
     },
-    userData: s3.configBucket.bucket.apply((configBucketName) => {
+    userData: pulumi.all([
+        s3.configBucket.bucket,
+        efs.datasets.id,
+    ]).apply(([
+        configBucketName,
+        datasetsEfsId,
+    ]) => {
         const template = handlebars.compile(fs.readFileSync("ec2-init-dedicated-worker.sh", "utf8"))
         return Buffer.from(template({
             configBucketName,
+            datasetsEfsId,
         })).toString("base64")
     }),
 })
@@ -73,7 +85,7 @@ const policy = new aws.iam.Policy("DedicatedMachines", {
             Effect: "Allow",
             Action: [
                 "ec2:DescribeInstances",
-                "ec2:DescribeInstanceTypes"
+                "ec2:DescribeInstanceTypes",
             ],
             Resource: "*",
         }, {
@@ -91,9 +103,9 @@ const policy = new aws.iam.Policy("DedicatedMachines", {
                 launchTemplate.arn,
                 `arn:aws:ec2:${config.aws.region}:${accountId}:network-interface/*`,
                 vpc.sgWorkers.arn,
-                ...vpc.vpc.privateSubnets.map(subnet => subnet.subnet.arn),
-                `arn:aws:ec2:${config.aws.region}:${accountId}:volume/*`
-            ]
+                ...vpc.vpc.privateSubnets.map((subnet) => subnet.subnet.arn),
+                `arn:aws:ec2:${config.aws.region}:${accountId}:volume/*`,
+            ],
         }, {
             Effect: "Allow",
             Action: "ec2:CreateTags",
@@ -103,7 +115,7 @@ const policy = new aws.iam.Policy("DedicatedMachines", {
             ],
             Condition: {
                 StringEquals: {
-                    "ec2:CreateAction": "RunInstances"
+                    "ec2:CreateAction": "RunInstances",
                 },
                 "ForAllValues:StringEquals": {
                     "aws:TagKeys": [
@@ -112,9 +124,9 @@ const policy = new aws.iam.Policy("DedicatedMachines", {
                         "role",
                         "codeocean.com/user",
                         "codeocean.com/capsule",
-                    ]
-                }
-            }
+                    ],
+                },
+            },
         }, {
             Effect: "Allow",
             Action: "ec2:TerminateInstances",
@@ -123,10 +135,10 @@ const policy = new aws.iam.Policy("DedicatedMachines", {
                 StringEquals: {
                     "ec2:ResourceTag/deployment": "codeocean-private-cloud",
                     "ec2:ResourceTag/role": "dedicated-worker",
-                }
-            }
-        }]
-    }
+                },
+            },
+        }],
+    },
 })
 
 new aws.iam.RolePolicyAttachment("servicesinstancerole-dedicated-machines-policy", {

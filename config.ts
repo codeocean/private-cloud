@@ -26,7 +26,7 @@ interface AuthConfig {
 }
 
 interface AWSConfig {
-    accountId?: string,  // injected during runtime
+    accountId?: string, // injected during runtime
     keyPair: string,
     region: string,
 }
@@ -50,6 +50,14 @@ interface ElbAccountIdConfig {
 
 interface ServicesConfig {
     registryHost: string,
+    segment: {
+        backend: {
+            apiKey: string | undefined,
+        },
+        frontend: {
+            apiKey: string | undefined,
+        },
+    }
 }
 
 interface WorkerConfig {
@@ -60,6 +68,8 @@ interface WorkerConfig {
 }
 
 interface FeaturesConfig {
+    basicMetadataOnly: boolean,
+    directPublication: boolean,
     disableDedicatedMachines: boolean,
     onboarding: string | undefined,
     useRInstallPackages: boolean,
@@ -89,6 +99,14 @@ export const domains: DomainConfig = {
 
 export const services: ServicesConfig = {
     registryHost: deployment.singleInstance ? "localhost:5000" : `registry.${config.require("domains.app")}`,
+    segment: {
+        backend: {
+            apiKey: config.get("segment.backend.apiKey"),
+        },
+        frontend: {
+            apiKey: config.get("segment.frontend.apiKey"),
+        },
+    },
 }
 
 export const auth: AuthConfig = {
@@ -98,11 +116,11 @@ export const auth: AuthConfig = {
     google: {
         clientID: config.get("auth.google.clientID"),
         clientSecret: config.getSecret("auth.google.clientSecret"),
-    }
+    },
 }
 
 if (config.get("auth.allowedDomains")) {
-    auth.allowedDomains = config.require("auth.allowedDomains").split(',').map(x => x.trim())
+    auth.allowedDomains = config.require("auth.allowedDomains").split(",").map((x) => x.trim())
 }
 
 if (config.get("auth.saml.domain")) {
@@ -120,6 +138,8 @@ export const workers: WorkerConfig = {
 }
 
 export const features: FeaturesConfig = {
+    basicMetadataOnly: config.getBoolean("features.basicMetadataOnly") === true,
+    directPublication: config.getBoolean("features.directPublication") === true,
     disableDedicatedMachines: config.getBoolean("features.disableDedicatedMachines") === true,
     onboarding: config.get("features.onboarding"),
     useRInstallPackages: config.getBoolean("features.useRInstallPackages") === true,
@@ -127,12 +147,12 @@ export const features: FeaturesConfig = {
 
 export const ami: AMIConfig = {
     services: {
-        "us-east-1": config.get("services.ami") || "ami-003b2e289fd9a903f",
-        "eu-central-1": config.get("services.ami") || "ami-0ca59262581285fe0",
+        "us-east-1": config.get("services.ami") || "ami-062c58afb02485e33",
+        "eu-central-1": config.get("services.ami") || "ami-01128becc25d6f8ee",
     },
     worker: {
-        "us-east-1": config.get("workers.ami") || "ami-0ca0badbbee48646a",
-        "eu-central-1": config.get("workers.ami") || "ami-0c34e59060793f421",
+        "us-east-1": config.get("workers.ami") || "ami-0a448e462c269e2a7",
+        "eu-central-1": config.get("workers.ami") || "ami-05792ab5ec1345aab",
     },
 }
 

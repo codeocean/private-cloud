@@ -2,6 +2,7 @@ General:
   APIBasePath: /api
   BaseURL: https://{{config.domains.app}}
   FilesURITemplate: https://{{config.domains.files}}/files/{owner_id}/{capsule_id}{+path}
+  DatasetsURITemplate: https://{{config.domains.files}}/datasets/{owner_id}/{dataset_id}{+path}
   GiteaProxyBaseURL: https://{{config.domains.git}}
   NetworkType: compose
 Security:
@@ -71,7 +72,7 @@ DiskStorage:
     WorkDir: work
     Fallback: false
 CloudWorkstation:
-  IdleTimeout: 1440  # 24 hrs
+  IdleTimeout: 120  # 2 hrs
 CouchDB:
   URL: http://couchdb:5984
   Username: admin
@@ -102,8 +103,14 @@ WDT:
   PortRangeBegin: 20000
   PortRangeEnd: 30000
 Tools:
-  DockerImage: 524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/tools:2020-02-13-2b55c3c
+  DockerImage: 524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/tools:2020-05-04-245b207
 Segment:
+  {{#if config.services.segment.backend.apiKey}}
+  APIKey: {{config.services.segment.backend.apiKey}}
+  {{/if}}
+  {{#if config.services.segment.frontend.apiKey}}
+  APIKeyFE: {{config.services.segment.frontend.apiKey}}
+  {{/if}}
   StatInterval: 3600
 InitData:
   Affiliations: false
@@ -130,30 +137,36 @@ Resources:
       Slot:
         CPU: 1.0
         Memory: 8380219392
-      DefaultClass: small
+      DefaultClass: xsmall
       Classes:
+        xsmall:
+          Name: X-Small
+          Description: 1 cores / 8 GB RAM
+          Order: 1
+          Resources:
+            Slots: 1
         small:
           Name: Small
           Description: 2 cores / 16 GB RAM
-          Order: 1
+          Order: 2
           Resources:
             Slots: 2
         2xsmall:
           Name: 2x Small
           Description: 4 cores / 32 GB RAM
-          Order: 2
+          Order: 3
           Resources:
             Slots: 4
         medium:
           Name: Medium
           Description: 8 cores / 64 GB RAM
-          Order: 3
+          Order: 4
           Resources:
             Slots: 8
         large:
           Name: Large
           Description: 16 cores / 128 GB RAM
-          Order: 4
+          Order: 5
           Resources:
             Slots: 16
     1:
@@ -253,9 +266,17 @@ DedicatedMachines:
     - r5.16xlarge
     - r5.24xlarge
 Features:
-  DisableAnalytics: true
+  DisableAnalytics: false
+  DisableAnonymousUsers: true
   DisableIntercom: true
+  {{#if config.features.directPublication}}
+  DirectPublication: true
+  {{else}}
   DisablePublication: true
+  {{/if}}
+  {{#if config.features.basicMetadataOnly}}
+  BasicMetadataOnly: true
+  {{/if}}
   {{#if config.features.onboarding}}
   Onboarding: {{config.features.onboarding}}
   {{/if}}
@@ -265,6 +286,9 @@ Features:
   {{/unless}}
   UseRInstallPackages: {{config.features.useRInstallPackages}}
   NonAdminListUsers: true
+  Datasets: true
+Datasets:
+  CacheTTLDays: 30
 Services:
   affiliation:
     URL: http://afil:8091
@@ -284,8 +308,12 @@ Services:
     URL: http://cw-proxy:8114
   dataset:
     URL: http://dset:8099
+  dataset-files:
+    URL: http://dataset-files:8505
   dimage:
     URL: http://dimage:8113
+  domain:
+    URL: http://domain:8115
   image:
     URL: http://dock:8090
   field:
@@ -315,7 +343,7 @@ Services:
   license:
     URL: http://lice:8097
   machine:
-    URL: http://mach:8115
+    URL: http://mach:8116
   maintenance:
     URL: http://maint:8300
   notification:

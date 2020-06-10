@@ -87,12 +87,12 @@ ns-673.awsdns-20.net.
 1. Fill in the image details. For example, a Python Miniconda3 base image:
     ```
     Name: Python
-    Version: 3.7.3, miniconda 4.7.10
-    Source: registry.codeocean.com/codeocean/miniconda3:4.7.10-python3.7-ubuntu18.04
+    Version: 3.8.1, miniconda 4.8.2, jupyterlab 2.1.1
+    Source: codeocean/jupyterlab:2.1.1-miniconda4.8.2-python3.8-ubuntu18.04
     Language: Python
     Machine Type: 0
     Description: Conda makes this environment a great starting point for installing other languages.
-    Keywords: Python, Ubuntu, 18.04
+    Keywords: Python, JupyterLab, Ubuntu, 18.04
     ```
     Or, an R base image:
     ```
