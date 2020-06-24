@@ -54,6 +54,10 @@ export const launchTemplate = new aws.ec2.LaunchTemplate("dedicated-worker", {
             role: "dedicated-worker",
         },
     }],
+    metadataOptions: {
+        httpEndpoint: "enabled",
+        httpPutResponseHopLimit: 2,
+    },
     networkInterfaces: [{
         subnetId: vpc.vpc.privateSubnetIds[0],
         securityGroups: [vpc.sgWorkers.id],
@@ -65,14 +69,17 @@ export const launchTemplate = new aws.ec2.LaunchTemplate("dedicated-worker", {
     userData: pulumi.all([
         s3.configBucket.bucket,
         efs.datasets.id,
+        config.stackname,
     ]).apply(([
         configBucketName,
         datasetsEfsId,
+        pulumiStackName,
     ]) => {
         const template = handlebars.compile(fs.readFileSync("ec2-init-dedicated-worker.sh", "utf8"))
         return Buffer.from(template({
             configBucketName,
             datasetsEfsId,
+            pulumiStackName,
         })).toString("base64")
     }),
 })

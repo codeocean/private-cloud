@@ -28,5 +28,29 @@ mount /datasets
 
 # Set the config bucket configuration
 echo 'CONFIG_BUCKET="{{configBucketName}}"' >> /etc/default/codeocean
+# Set the pulumi stack name
+echo 'PULUMI_STACK_NAME="{{pulumiStackName}}"' >> /etc/default/codeocean
 
 systemctl restart codeocean
+
+# Set cloudwatch logs agent conf
+cat << EOF > /tmp/cloudwatch-logs-config.json
+{
+    "logs": {
+        "logs_collected": {
+            "files": {
+                "collect_list": [
+                    {
+                        "file_path": "/var/log/messages",
+                        "log_group_name": "/codeocean/{{pulumiStackName}}/instances"
+                    }
+                ]
+            }
+        },
+        "log_stream_name": "services/{instance_id}/{ip_address}"
+    }
+}
+EOF
+
+# Sending /var/log/messages to cloud watch logs
+/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a append-config -s -c file:/tmp/cloudwatch-logs-config.json

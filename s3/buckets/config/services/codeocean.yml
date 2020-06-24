@@ -21,6 +21,7 @@ Security:
   {{/if}}
 Auth:
   DisableBuiltinSignup: true
+  DisableAnonymousUsers: true
   PrivateKeyPath: /app/keys/app.rsa
   PublicKeyPath: /app/keys/app.rsa.pub
   SAML:
@@ -267,7 +268,6 @@ DedicatedMachines:
     - r5.24xlarge
 Features:
   DisableAnalytics: false
-  DisableAnonymousUsers: true
   DisableIntercom: true
   {{#if config.features.directPublication}}
   DirectPublication: true

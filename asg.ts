@@ -1,3 +1,4 @@
+import { Buffer } from "buffer"
 import * as fs from "fs"
 
 import * as aws from "@pulumi/aws"
@@ -10,50 +11,66 @@ import * as iam from "./iam"
 import * as s3 from "./s3"
 import * as vpc from "./vpc"
 
-const workerEbsBlockDevices = [{
+const workerEbsBlockDevices: aws.types.input.ec2.LaunchTemplateBlockDeviceMapping[] = [{
     deviceName: "/dev/sdf",
-    encrypted: true,
-    volumeSize: 300,
-    volumeType: "gp2",
+    ebs: {
+        encrypted: "true",
+        volumeSize: 300,
+        volumeType: "gp2",
+    },
 }]
 
 if (!config.workers.useInstanceStore) {
     workerEbsBlockDevices.push({
         deviceName: "/dev/sde",
-        encrypted: true,
-        volumeSize: 300,
-        volumeType: "gp2",
+        ebs: {
+            encrypted: "true",
+            volumeSize: 300,
+            volumeType: "gp2",
+        },
     })
 }
 
-const workersLaunchConfig = new aws.ec2.LaunchConfiguration("workers", {
-    ebsBlockDevices: workerEbsBlockDevices,
-    ebsOptimized: true,
-    iamInstanceProfile: iam.workerInstanceProfile,
+const workersLaunchTemplate = new aws.ec2.LaunchTemplate("workers", {
+    blockDeviceMappings: workerEbsBlockDevices,
+    ebsOptimized: "true",
+    iamInstanceProfile: {
+        arn: iam.workerInstanceProfile.arn,
+    },
     imageId: config.ami.worker[config.aws.region],
     instanceType: config.workers.instanceType,
     keyName: config.aws.keyPair,
+    metadataOptions: {
+        httpEndpoint: "enabled",
+        httpPutResponseHopLimit: 2,
+    },
     userData: pulumi.all([
         s3.configBucket.bucket,
         efs.datasets.id,
+        config.stackname,
     ]).apply(([
         configBucketName,
         datasetsEfsId,
+        pulumiStackName,
     ]) => {
         const template = handlebars.compile(fs.readFileSync("ec2-init-worker.sh", "utf8"))
-        return template({
+        return Buffer.from(template({
             configBucketName,
             datasetsEfsId,
-        })
+            pulumiStackName,
+        })).toString("base64")
     }),
-    securityGroups: [vpc.sgWorkers.id],
+    vpcSecurityGroupIds: [vpc.sgWorkers.id],
 })
 
 export const workersAsg = new aws.autoscaling.Group("workers", {
-    name: pulumi.interpolate`${workersLaunchConfig.name}-asg`, // force a redeployment when launch configuration changes
+    name: pulumi.interpolate`${workersLaunchTemplate.name}-${workersLaunchTemplate.latestVersion}-asg`, // force a redeployment when launch template changes
     defaultCooldown: 120,
     enabledMetrics: ["GroupMinSize", "GroupMaxSize", "GroupDesiredCapacity", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupTerminatingInstances", "GroupTotalInstances"],
-    launchConfiguration: workersLaunchConfig,
+    launchTemplate: {
+        id: workersLaunchTemplate.id,
+        version: pulumi.interpolate`${workersLaunchTemplate.latestVersion}`,
+    },
     maxSize: config.workers.autoScalingMaxSize,
     minSize: config.workers.autoScalingMinSize,
     tags: [{

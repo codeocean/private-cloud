@@ -2,13 +2,13 @@
     "name": "private-cloud",
     "private": true,
     "dependencies": {
-        "@pulumi/aws": "^1.27.0",
+        "@pulumi/aws": "^1.31.0",
         "@pulumi/awsx": "^0.18.14",
-        "@pulumi/pulumi": "^1.13.0",
-        "@pulumi/random": "^1.6.0",
-        "@pulumi/tls": "^1.5.0",
+        "@pulumi/pulumi": "^1.14.1",
+        "@pulumi/random": "^1.7.0",
+        "@pulumi/tls": "^1.6.0",
         "@types/mime": "^2.0.2",
-        "handlebars": "^4.7.3"
+        "handlebars": "^4.7.6"
     },
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^3.0.0",

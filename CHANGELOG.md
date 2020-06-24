@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+## 0.4.0 (2020-06-24)
+
+- Asset Management: dynamic mount of datasets
+- Asset Management: capture results from inside cloud workstation
+- Centralized logging with CloudWatch Logs
+- Use EC2 launch template for workers auto scaling group
+
 ## 0.3.0 (2020-06-10)
 
 - Asset Management: support for datasets

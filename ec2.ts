@@ -23,6 +23,10 @@ export const servicesInstance = new aws.ec2.Instance("services", {
     iamInstanceProfile: iam.servicesInstanceProfile,
     instanceType: aws.ec2.InstanceTypes.M5_Large,
     keyName: config.aws.keyPair,
+    metadataOptions: {
+        httpEndpoint: "enabled",
+        httpPutResponseHopLimit: 2,
+    },
     subnetId: vpc.vpc.privateSubnetIds[0],
     tags: {
         Name: "codeocean-services",
@@ -32,14 +36,17 @@ export const servicesInstance = new aws.ec2.Instance("services", {
     userData: pulumi.all([
         s3.configBucket.bucket,
         efs.datasets.id,
+        config.stackname,
     ]).apply(([
         configBucketName,
         datasetsEfsId,
+        pulumiStackName,
     ]) => {
         const template = handlebars.compile(fs.readFileSync("ec2-init-services.sh", "utf8"))
         return template({
             configBucketName,
             datasetsEfsId,
+            pulumiStackName,
         })
     }),
     vpcSecurityGroupIds: [vpc.sgServices.id],
