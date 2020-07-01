@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.4.1 (2020-06-30)
+
+- Bug fixes
+
 ## 0.4.0 (2020-06-24)
 
 - Asset Management: dynamic mount of datasets

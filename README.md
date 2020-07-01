@@ -13,10 +13,16 @@ Create a key pair (normally, `codeocean`). Store the private key to be able to S
 
 ## Pulumi Setup
 
-1. Install Pulumi: https://www.pulumi.com/docs/get-started/aws/install-pulumi/
+1. Install Pulumi version 1.14.1:
+    - Via Homebrew:
+    ```
+    brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/62ab5d9a76e5af663cff7bf9a3a34db413df75f5/Formula/pulumi.rb
+    ```
+    - Manually: https://www.pulumi.com/docs/get-started/install/#manual-installation 
 1. Please make a choice of the pulumi backend you'll be working with to store infrastructure state:
 https://www.pulumi.com/docs/intro/concepts/state/
 1. Install Node.js v12, eg `brew install node@12`
+1. Clone this repository: `git clone https://github.com/codeocean/private-cloud.git && cd private-cloud`
 1. Install npm packages: `npm ci`
 1. Login to pulumi with the backend of choice: `pulumi login [options]`
 1. Create a deployment stack:
@@ -73,6 +79,11 @@ ns-366.awsdns-45.com.
 ns-1437.awsdns-51.org.
 ns-673.awsdns-20.net.
 ```
+
+If you update an existing NS record in your parent domain, the new NS record could take time to propagate.
+This could fail the provisioning of an SSL certificate that is part of the deployment, as it relies on
+DNS verification, and in turn, would fail the deployment.
+Wait until the DNS change propogates and run the deployment again with `pulumi up`.
 
 ## System Initialization
 

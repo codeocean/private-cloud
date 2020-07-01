@@ -18,11 +18,12 @@ interface AuthConfig {
     google: {
         clientID?: string,
         clientSecret?: pulumi.Output<string>,
-    }
+    },
     saml?: {
         domain: string,
         metadataUrl: string,
-    }
+    },
+    systemAPIKey?: pulumi.Output<string>,
 }
 
 interface AWSConfig {
@@ -68,9 +69,6 @@ interface WorkerConfig {
 }
 
 interface FeaturesConfig {
-    basicMetadataOnly: boolean,
-    directPublication: boolean,
-    disableDedicatedMachines: boolean,
     onboarding: string | undefined,
     useRInstallPackages: boolean,
 }
@@ -117,6 +115,7 @@ export const auth: AuthConfig = {
         clientID: config.get("auth.google.clientID"),
         clientSecret: config.getSecret("auth.google.clientSecret"),
     },
+    systemAPIKey: config.getSecret("auth.systemAPIKey"),
 }
 
 if (config.get("auth.allowedDomains")) {
@@ -138,21 +137,18 @@ export const workers: WorkerConfig = {
 }
 
 export const features: FeaturesConfig = {
-    basicMetadataOnly: config.getBoolean("features.basicMetadataOnly") === true,
-    directPublication: config.getBoolean("features.directPublication") === true,
-    disableDedicatedMachines: config.getBoolean("features.disableDedicatedMachines") === true,
     onboarding: config.get("features.onboarding"),
     useRInstallPackages: config.getBoolean("features.useRInstallPackages") === true,
 }
 
 export const ami: AMIConfig = {
     services: {
-        "us-east-1": config.get("services.ami") || "ami-097e86c27c5f5deea",
-        "eu-central-1": config.get("services.ami") || "ami-06c7ed83f1cd74690",
+        "us-east-1": config.get("services.ami") || "ami-07c34b2916133f6d5",
+        "eu-central-1": config.get("services.ami") || "ami-0dc44fcf440874842",
     },
     worker: {
-        "us-east-1": config.get("workers.ami") || "ami-0f1919f490d94b4a8",
-        "eu-central-1": config.get("workers.ami") || "ami-0ea84b6ced5d84797",
+        "us-east-1": config.get("workers.ami") || "ami-019e16020f4d72242",
+        "eu-central-1": config.get("workers.ami") || "ami-03c31b1b296d8a243",
     },
 }
 

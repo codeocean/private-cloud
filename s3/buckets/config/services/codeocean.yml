@@ -19,6 +19,9 @@ Security:
   {{#if secrets.auth.builtin.reCaptchaApiKey}}
   ReCaptchaAPIKey: {{secrets.auth.builtin.reCaptchaApiKey}}
   {{/if}}
+  {{#if secrets.auth.systemAPIKey}}
+  SystemAPIKey: {{secrets.auth.systemAPIKey}}
+  {{/if}}
 Auth:
   DisableBuiltinSignup: true
   DisableAnonymousUsers: true
@@ -104,7 +107,7 @@ WDT:
   PortRangeBegin: 20000
   PortRangeEnd: 30000
 Tools:
-  DockerImage: 524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/tools:2020-05-04-245b207
+  DockerImage: 524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/tools:2020-06-28-5077a92
 Segment:
   {{#if config.services.segment.backend.apiKey}}
   APIKey: {{config.services.segment.backend.apiKey}}
@@ -269,21 +272,13 @@ DedicatedMachines:
 Features:
   DisableAnalytics: false
   DisableIntercom: true
-  {{#if config.features.directPublication}}
   DirectPublication: true
-  {{else}}
-  DisablePublication: true
-  {{/if}}
-  {{#if config.features.basicMetadataOnly}}
   BasicMetadataOnly: true
-  {{/if}}
   {{#if config.features.onboarding}}
   Onboarding: {{config.features.onboarding}}
   {{/if}}
   SlotScheduling: true
-  {{#unless config.features.disableDedicatedMachines}}
-  DedicatedMachines: true
-  {{/unless}}
+  DedicatedMachines: false
   UseRInstallPackages: {{config.features.useRInstallPackages}}
   NonAdminListUsers: true
   Datasets: true

@@ -5,6 +5,7 @@ import * as config from "../config"
 import * as dedicatedMachines from "../dedicated-machines"
 import * as keys from "../keys"
 import * as secrets from "../secrets"
+
 import * as s3 from "."
 
 const accountId = pulumi.output(aws.getCallerIdentity()).accountId
@@ -25,6 +26,7 @@ pulumi.all([
     dedicatedMachines.launchTemplate.latestVersion.apply(v => v.toString()),
     config.auth.builtin.reCaptchaApiKey,
     config.auth.google.clientSecret,
+    config.auth.systemAPIKey,
     secrets.couchdb.adminPassword.result,
     secrets.gitea.adminPassword.result,
     secrets.gitea.commonPassword.result,
@@ -49,6 +51,7 @@ pulumi.all([
     dedicatedMachineLaunchTemplateVersion,
     reCaptchaApiKey,
     googleClientSecret,
+    systemAPIKey,
     couchdbAdminPassword,
     giteaAdminPassword,
     giteaCommonPassword,
@@ -84,6 +87,7 @@ pulumi.all([
                 google: {
                     clientSecret: googleClientSecret,
                 },
+                systemAPIKey,
             },
             couchdb: {
                 adminPassword: couchdbAdminPassword,
