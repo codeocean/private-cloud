@@ -48,7 +48,7 @@ new aws.cloudwatch.MetricAlarm("workers-available-slots-high", {
     },
 })
 
-interface VolumeHighUsageAlarmArgs {
+interface VolumeUsageAlarmArgs {
     minutesToAlarm: number
     path: string
     threshold: number
@@ -57,10 +57,10 @@ interface VolumeHighUsageAlarmArgs {
 
 // Services machine alarms
 
-function servicesVolumeHighUsageAlarm(args: VolumeHighUsageAlarmArgs) {
-    new aws.cloudwatch.MetricAlarm(`services-${args.volumeName}-volume-usage-high`, {
+function servicesVolumeHighUsageAlarm(args: VolumeUsageAlarmArgs) {
+    new aws.cloudwatch.MetricAlarm(`services-${args.volumeName}-volume-usage-${args.threshold}`, {
         alarmActions: [sns.alarmsTopic],
-        alarmDescription: `Services machine ${args.volumeName} volume usage is high`,
+        alarmDescription: `Services machine ${args.volumeName} volume usage is more than ${args.threshold}`,
         comparisonOperator: "GreaterThanThreshold",
         datapointsToAlarm: args.minutesToAlarm,
         dimensions: {
@@ -90,6 +90,12 @@ servicesVolumeHighUsageAlarm({
     minutesToAlarm: 10,
     path: "/data",
     threshold: 70,
+    volumeName: "data",
+})
+servicesVolumeHighUsageAlarm({
+    minutesToAlarm: 10,
+    path: "/data",
+    threshold: 95,
     volumeName: "data",
 })
 servicesVolumeHighUsageAlarm({
@@ -220,10 +226,10 @@ new aws.cloudwatch.MetricAlarm("services-elevated-error-rate", {
 
 // Workers alarms
 
-function workersVolumeHighUsageAlarm(args: VolumeHighUsageAlarmArgs) {
-    new aws.cloudwatch.MetricAlarm(`workers-${args.volumeName}-volume-usage-high`, {
+function workersVolumeHighUsageAlarm(args: VolumeUsageAlarmArgs) {
+    new aws.cloudwatch.MetricAlarm(`workers-${args.volumeName}-volume-usage-${args.threshold}`, {
         alarmActions: [sns.alarmsTopic],
-        alarmDescription: `Worker machine ${args.volumeName} volume usage is high`,
+        alarmDescription: `Worker machine ${args.volumeName} volume usage is more than ${args.threshold}`,
         comparisonOperator: "GreaterThanThreshold",
         datapointsToAlarm: args.minutesToAlarm,
         dimensions: {

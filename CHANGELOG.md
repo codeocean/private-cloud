@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.4.2 (2020-07-20)
+
+- Change cloudWatch alarms
+
 ## 0.4.1 (2020-06-30)
 
 - Bug fixes
