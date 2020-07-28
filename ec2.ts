@@ -27,7 +27,7 @@ export const servicesInstance = new aws.ec2.Instance("services", {
         httpEndpoint: "enabled",
         httpPutResponseHopLimit: 2,
     },
-    subnetId: vpc.vpc.privateSubnetIds[0],
+    subnetId: pulumi.output(vpc.vpc.privateSubnetIds).apply(subnets => subnets[0]),
     tags: {
         Name: "codeocean-services",
         deployment: config.deploymentName,
@@ -35,22 +35,30 @@ export const servicesInstance = new aws.ec2.Instance("services", {
     },
     userData: pulumi.all([
         s3.configBucket.bucket,
+        efs.capsuleCache?.id,
         efs.datasets.id,
         config.stackname,
     ]).apply(([
         configBucketName,
+        capsuleCacheEfsId,
         datasetsEfsId,
         pulumiStackName,
     ]) => {
         const template = handlebars.compile(fs.readFileSync("ec2-init-services.sh", "utf8"))
         return template({
             configBucketName,
+            capsuleCacheEfsId,
             datasetsEfsId,
             pulumiStackName,
         })
     }),
     vpcSecurityGroupIds: [vpc.sgServices.id],
 }, {
+    dependsOn: [
+        efs.capsuleCache,
+        efs.datasets,
+        s3.configBucket,
+    ],
     // XXX Terraform & Pulumi have an issue with mixing ebsBlockDevices and VolumeAttachment which will
     // cause them to recreate the instance on each update, which we sadly do here. So we ignore
     // changes on ebsBlockDevices to workaround this, until they will hopefully fix this limitation

@@ -8,7 +8,7 @@ import * as vpc from "./vpc"
 
 // External ALB
 
-export const externalAlb = new aws.elasticloadbalancingv2.LoadBalancer("external", {
+export const externalAlb = new aws.lb.LoadBalancer("external", {
     accessLogs: {
         bucket: s3.accessLogsBucket.bucket,
         enabled: true,
@@ -25,7 +25,7 @@ export const externalAlb = new aws.elasticloadbalancingv2.LoadBalancer("external
     dependsOn: s3.accessLogsBucketPolicy,
 })
 
-export const webTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("web", {
+export const webTargetGroup = new aws.lb.TargetGroup("web", {
     healthCheck: {
         path: "/health",
     },
@@ -37,7 +37,7 @@ export const webTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("web", 
     },
 })
 
-const gwTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("gw", {
+const gwTargetGroup = new aws.lb.TargetGroup("gw", {
     healthCheck: {
         path: "/api/health",
     },
@@ -49,7 +49,7 @@ const gwTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("gw", {
     },
 })
 
-const fileProxyTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("file-proxy", {
+const fileProxyTargetGroup = new aws.lb.TargetGroup("file-proxy", {
     healthCheck: {
         path: "/health",
     },
@@ -61,7 +61,7 @@ const fileProxyTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("file-pr
     },
 })
 
-const cwProxyTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("cw-proxy", {
+const cwProxyTargetGroup = new aws.lb.TargetGroup("cw-proxy", {
     healthCheck: {
         path: "/health",
     },
@@ -73,7 +73,7 @@ const cwProxyTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("cw-proxy"
     },
 })
 
-const gitProxyTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("git-proxy", {
+const gitProxyTargetGroup = new aws.lb.TargetGroup("git-proxy", {
     healthCheck: {
         path: "/health",
     },
@@ -85,7 +85,7 @@ const gitProxyTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("git-prox
     },
 })
 
-const s3ProxyTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("s3-proxy", {
+const s3ProxyTargetGroup = new aws.lb.TargetGroup("s3-proxy", {
     healthCheck: {
         path: "/health",
     },
@@ -97,7 +97,7 @@ const s3ProxyTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("s3-proxy"
     },
 })
 
-new aws.elasticloadbalancingv2.Listener("external-http", {
+new aws.lb.Listener("external-http", {
     defaultActions: [{
         redirect: {
             port: "443",
@@ -111,7 +111,7 @@ new aws.elasticloadbalancingv2.Listener("external-http", {
     protocol: "HTTP",
 })
 
-const listener = new aws.elasticloadbalancingv2.Listener("external-https", {
+const listener = new aws.lb.Listener("external-https", {
     certificateArn: acm.sslCert.arn,
     defaultActions: [{
         type: "forward",
@@ -125,7 +125,7 @@ const listener = new aws.elasticloadbalancingv2.Listener("external-https", {
 
 let priority = 1
 
-new aws.elasticloadbalancingv2.ListenerRule("file-proxy", {
+new aws.lb.ListenerRule("file-proxy", {
     actions: [{
         type: "forward",
         targetGroupArn: fileProxyTargetGroup.arn,
@@ -141,7 +141,7 @@ new aws.elasticloadbalancingv2.ListenerRule("file-proxy", {
     deleteBeforeReplace: true,
 })
 
-new aws.elasticloadbalancingv2.ListenerRule("file-proxy-auth-callback", {
+new aws.lb.ListenerRule("file-proxy-auth-callback", {
     actions: [{
         type: "forward",
         targetGroupArn: fileProxyTargetGroup.arn,
@@ -157,7 +157,7 @@ new aws.elasticloadbalancingv2.ListenerRule("file-proxy-auth-callback", {
     deleteBeforeReplace: true,
 })
 
-new aws.elasticloadbalancingv2.ListenerRule("file-proxy-datasets", {
+new aws.lb.ListenerRule("file-proxy-datasets", {
     actions: [{
         type: "forward",
         targetGroupArn: fileProxyTargetGroup.arn,
@@ -173,7 +173,7 @@ new aws.elasticloadbalancingv2.ListenerRule("file-proxy-datasets", {
     deleteBeforeReplace: true,
 })
 
-new aws.elasticloadbalancingv2.ListenerRule("file-proxy-datasets-auth-callback", {
+new aws.lb.ListenerRule("file-proxy-datasets-auth-callback", {
     actions: [{
         type: "forward",
         targetGroupArn: fileProxyTargetGroup.arn,
@@ -189,7 +189,7 @@ new aws.elasticloadbalancingv2.ListenerRule("file-proxy-datasets-auth-callback",
     deleteBeforeReplace: true,
 })
 
-new aws.elasticloadbalancingv2.ListenerRule("git-proxy", {
+new aws.lb.ListenerRule("git-proxy", {
     actions: [{
         type: "forward",
         targetGroupArn: gitProxyTargetGroup.arn,
@@ -205,7 +205,7 @@ new aws.elasticloadbalancingv2.ListenerRule("git-proxy", {
     deleteBeforeReplace: true,
 })
 
-new aws.elasticloadbalancingv2.ListenerRule("cw-proxy", {
+new aws.lb.ListenerRule("cw-proxy", {
     actions: [{
         type: "forward",
         targetGroupArn: cwProxyTargetGroup.arn,
@@ -221,7 +221,7 @@ new aws.elasticloadbalancingv2.ListenerRule("cw-proxy", {
     deleteBeforeReplace: true,
 })
 
-new aws.elasticloadbalancingv2.ListenerRule("gw", {
+new aws.lb.ListenerRule("gw", {
     actions: [{
         type: "forward",
         targetGroupArn: gwTargetGroup.arn,
@@ -237,7 +237,7 @@ new aws.elasticloadbalancingv2.ListenerRule("gw", {
     deleteBeforeReplace: true,
 })
 
-new aws.elasticloadbalancingv2.ListenerRule("s3-proxy", {
+new aws.lb.ListenerRule("s3-proxy", {
     actions: [{
         type: "forward",
         targetGroupArn: s3ProxyTargetGroup.arn,
@@ -253,39 +253,39 @@ new aws.elasticloadbalancingv2.ListenerRule("s3-proxy", {
     deleteBeforeReplace: true,
 })
 
-new aws.elasticloadbalancingv2.TargetGroupAttachment("s3-proxy", {
+new aws.lb.TargetGroupAttachment("s3-proxy", {
     targetId: ec2.servicesInstance.id,
     targetGroupArn: s3ProxyTargetGroup.arn,
 })
 
-new aws.elasticloadbalancingv2.TargetGroupAttachment("git-proxy", {
+new aws.lb.TargetGroupAttachment("git-proxy", {
     targetId: ec2.servicesInstance.id,
     targetGroupArn: gitProxyTargetGroup.arn,
 })
 
-new aws.elasticloadbalancingv2.TargetGroupAttachment("cw-proxy", {
+new aws.lb.TargetGroupAttachment("cw-proxy", {
     targetId: ec2.servicesInstance.id,
     targetGroupArn: cwProxyTargetGroup.arn,
 })
 
-new aws.elasticloadbalancingv2.TargetGroupAttachment("file-proxy", {
+new aws.lb.TargetGroupAttachment("file-proxy", {
     targetId: ec2.servicesInstance.id,
     targetGroupArn: fileProxyTargetGroup.arn,
 })
 
-new aws.elasticloadbalancingv2.TargetGroupAttachment("gw", {
+new aws.lb.TargetGroupAttachment("gw", {
     targetId: ec2.servicesInstance.id,
     targetGroupArn: gwTargetGroup.arn,
 })
 
-new aws.elasticloadbalancingv2.TargetGroupAttachment("web", {
+new aws.lb.TargetGroupAttachment("web", {
     targetId: ec2.servicesInstance.id,
     targetGroupArn: webTargetGroup.arn,
 })
 
 // Internal ALB
 
-export const internalAlb = new aws.elasticloadbalancingv2.LoadBalancer("services", {
+export const internalAlb = new aws.lb.LoadBalancer("services", {
     accessLogs: {
         bucket: s3.accessLogsBucket.bucket,
         enabled: true,
@@ -301,7 +301,7 @@ export const internalAlb = new aws.elasticloadbalancingv2.LoadBalancer("services
     dependsOn: s3.accessLogsBucketPolicy,
 })
 
-const registryTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("registry", {
+const registryTargetGroup = new aws.lb.TargetGroup("registry", {
     healthCheck: {
         path: "/",
     },
@@ -313,7 +313,7 @@ const registryTargetGroup = new aws.elasticloadbalancingv2.TargetGroup("registry
     },
 })
 
-new aws.elasticloadbalancingv2.Listener("internal-https", {
+new aws.lb.Listener("internal-https", {
     certificateArn: acm.sslCert.arn,
     defaultActions: [{
         type: "forward",
@@ -327,7 +327,7 @@ new aws.elasticloadbalancingv2.Listener("internal-https", {
     deleteBeforeReplace: true,
 })
 
-new aws.elasticloadbalancingv2.TargetGroupAttachment("registry", {
+new aws.lb.TargetGroupAttachment("registry", {
     targetId: ec2.servicesInstance.id,
     targetGroupArn: registryTargetGroup.arn,
 })

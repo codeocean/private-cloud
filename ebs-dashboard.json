@@ -1,0 +1,44 @@
+{
+    "widgets": [
+        {
+            "type": "metric",
+            "x": 0,
+            "y": 0,
+            "width": 24,
+            "height": 9,
+            "properties": {
+                "metrics": [
+                    [ { "expression": "SUM([m1,m2])/PERIOD(m1)", "label": "Volume Ops/s", "id": "e1", "period": 300 } ],
+                    [ { "expression": "SUM([m5,m6])/PERIOD(m5)", "label": "Bandwidth MiB/s", "id": "e2", "period": 300, "yAxis": "right" } ],
+                    [ "AWS/EBS", "VolumeReadOps", "VolumeId", "{{dataVolumeId}}", { "id": "m1", "visible": false } ],
+                    [ ".", "VolumeWriteOps", ".", ".", { "id": "m2", "visible": false } ],
+                    [ ".", "VolumeIdleTime", ".", ".", { "id": "m3", "visible": false } ],
+                    [ ".", "VolumeQueueLength", ".", ".", { "id": "m4", "stat": "Maximum", "visible": false } ],
+                    [ ".", "VolumeReadBytes", ".", ".", { "id": "m5", "visible": false } ],
+                    [ ".", "VolumeWriteBytes", ".", ".", { "id": "m6", "visible": false } ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "start": "-P2D",
+                "end": "P0D",
+                "region": "{{awsRegion}}",
+                "stat": "Sum",
+                "period": 300,
+                "title": "Data Volume Performance",
+                "annotations": {
+                    "horizontal": [
+                        {
+                            "label": "Max throughput per volume",
+                            "value": 262144000,
+                            "yAxis": "right"
+                        },
+                        {
+                            "label": "Max IOPS per volume",
+                            "value": 16000
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

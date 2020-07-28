@@ -13,7 +13,7 @@ const accountId = pulumi.output(aws.getCallerIdentity()).accountId
 // Upload objects
 // Warning: Due to the lack of variadic generics in TypeScript, pulumi.all has rather problmatic
 // typing, bascially everything here must be a string
-pulumi.all([
+const context = pulumi.all([
     accountId,
     s3.assetsBucket.bucket,
     s3.datasetsBucket.bucket,
@@ -66,7 +66,7 @@ pulumi.all([
 ]) => {
     config.aws.accountId = accountId_
 
-    const context = {
+    return {
         config,
         buckets: {
             assets: assetsBucketName,
@@ -117,8 +117,8 @@ pulumi.all([
             }
         }
     }
-
-    s3.assetsBucket.upload({ cacheControl: "max-age=86400", context })
-    s3.configBucket.upload({ render: true, context })
-    s3.templatesBucket.upload({ context })
 })
+
+s3.assetsBucket.upload({ cacheControl: "max-age=86400", context })
+s3.configBucket.upload({ render: true, context })
+s3.templatesBucket.upload({ context })

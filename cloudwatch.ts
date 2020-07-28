@@ -1,7 +1,12 @@
+import * as fs from "fs"
+
 import * as aws from "@pulumi/aws"
+import * as pulumi from "@pulumi/pulumi"
+import * as handlebars from "handlebars"
 
 import * as asg from "./asg"
 import * as config from "./config"
+import * as ebs from "./ebs"
 import * as ec2 from "./ec2"
 import * as lb from "./lb"
 import * as sns from "./sns"
@@ -266,4 +271,21 @@ workersVolumeHighUsageAlarm({
     path: "/worker",
     threshold: 90,
     volumeName: "worker",
+})
+
+new aws.cloudwatch.Dashboard("codeocean-dashboard", {
+    dashboardName: `codeocean-${config.stackname}`,
+    dashboardBody: pulumi.all([
+        ebs.dataVolume.id,
+        config.aws.region,
+    ]).apply(([
+        dataVolumeId,
+        awsRegion,
+    ]) => {
+        const template = handlebars.compile(fs.readFileSync("ebs-dashboard.json", "utf8"))
+        return template({
+            dataVolumeId,
+            awsRegion,
+        })
+    }),
 })

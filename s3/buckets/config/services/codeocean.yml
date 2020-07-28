@@ -67,6 +67,9 @@ AWS:
     DedicatedMachineLaunchTemplateVersion: {{dedicatedMachineLaunchTemplateVersion}}
 DiskStorage:
   WorkspacesPath: /data/workspaces
+  {{#if config.features.capsuleCache}}
+  CapsuleCachePath: /capsule-cache
+  {{/if}}
   DatasetsPath: /data/datasets
   WorkerPath: /data/worker
   RationalDataPath: /data
@@ -95,6 +98,12 @@ Gitea:
   AuxPassword: {{secrets.gitea.auxPassword}}
   ReadOnlyUser: readonly
   ReadOnlyPassword: {{secrets.gitea.readonlyPassword}}
+GitProviders:
+  {{#if config.gitProviders.github.org}}
+  - Name: GitHub
+    Domain: github.com
+    Organization: {{config.gitProviders.github.org}}
+  {{/if}}
 Redis:
   Address: redis:6379
   Password: {{secrets.redis.password}}
@@ -279,9 +288,12 @@ Features:
   {{/if}}
   SlotScheduling: true
   DedicatedMachines: false
-  UseRInstallPackages: {{config.features.useRInstallPackages}}
+  {{#if config.features.useRInstallPackages}}
+  UseRInstallPackages: true
+  {{/if}}
   NonAdminListUsers: true
   Datasets: true
+  CapsuleGUI: true
 Datasets:
   CacheTTLDays: 30
 Services:

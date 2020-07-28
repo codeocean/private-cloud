@@ -13,12 +13,7 @@ Create a key pair (normally, `codeocean`). Store the private key to be able to S
 
 ## Pulumi Setup
 
-1. Install Pulumi version 1.14.1:
-    - Via Homebrew:
-    ```
-    brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/62ab5d9a76e5af663cff7bf9a3a34db413df75f5/Formula/pulumi.rb
-    ```
-    - Manually: https://www.pulumi.com/docs/get-started/install/#manual-installation 
+1. Install Pulumi cli: https://www.pulumi.com/docs/get-started/install/
 1. Please make a choice of the pulumi backend you'll be working with to store infrastructure state:
 https://www.pulumi.com/docs/intro/concepts/state/
 1. Install Node.js v12, eg `brew install node@12`
@@ -55,6 +50,11 @@ To configure SAML SSO:
 ```
 pulumi config set auth.saml.domain
 pulumi config set auth.saml.metadataUrl
+```
+
+To configure GitHub organization support:
+```
+pulumi config set --path gitProviders.github.org [org name]
 ```
 
 ## Deployment

@@ -1,8 +1,7 @@
 import * as fs from "fs"
-import * as aws from "@pulumi/aws"
-
 import * as path from "path"
 
+import * as aws from "@pulumi/aws"
 import * as pulumi from "@pulumi/pulumi"
 import * as handlebars from "handlebars"
 import * as mime from "mime"
@@ -170,8 +169,8 @@ export class Bucket extends aws.s3.Bucket {
         }
     }
 
-    // upload walks the provided directory tree and uploads found files to the given S3 bucket
-    public upload(args?: BucketObjectArgs) {
+    // upload walks the provided directory tree and uploads found files to this S3 bucket
+    public upload(args?: BucketUploadArgs) {
         args = args || {}
 
         this.walk(this.uploadDirectory, (filePath: string) => {
@@ -182,19 +181,31 @@ export class Bucket extends aws.s3.Bucket {
                 const template = handlebars.compile(fs.readFileSync(filePath, "utf8"), {
                     noEscape: true,
                 })
-                const asset = template(args!.context)
-                source = new pulumi.asset.StringAsset(asset)
+                source = pulumi.output(args!.context).apply(context => {
+                    const asset = template(context)
+                    return new pulumi.asset.StringAsset(asset)
+                })
             } else {
                 source = new pulumi.asset.FileAsset(filePath)
             }
 
-            new aws.s3.BucketObject(`${this.name}/${key}`, {
-                bucket: this,
+            this.uploadObject({
                 cacheControl: args!.cacheControl,
                 contentType: mime.getType(filePath) || undefined,
                 key,
                 source,
             })
+        })
+    }
+
+    // uploadObject uploads an object to the this S3 bucket
+    public uploadObject(args: BucketObjectArgs) {
+        new aws.s3.BucketObject(`${this.name}/${args.key}`, {
+            bucket: this,
+            cacheControl: args.cacheControl,
+            contentType: args.contentType,
+            key: args.key,
+            source: args.source,
         })
     }
 }
@@ -230,6 +241,24 @@ export interface BucketArgs {
 }
 
 /**
+ * The set of arguments for uploading bucket objects to S3.
+ */
+export interface BucketUploadArgs {
+    /**
+     * Specifies caching behavior along the request/reply chain Read [w3c cache_control](http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9) for further details.
+     */
+    readonly cacheControl?: pulumi.Input<string>
+    /**
+     * Context for rendering objects as templates.
+     */
+    readonly context?: pulumi.Input<any>
+    /**
+     * Render objects as templates.
+     */
+    readonly render?: boolean
+}
+
+/**
  * The set of arguments for constructing a BucketObject resource during upload to S3.
  */
 export interface BucketObjectArgs {
@@ -238,11 +267,15 @@ export interface BucketObjectArgs {
      */
     readonly cacheControl?: pulumi.Input<string>
     /**
-     * Context for rendering objects as templates.
+     * A standard MIME type describing the format of the object data, e.g. application/octet-stream. All Valid MIME Types are valid for this input.
      */
-    readonly context?: any
+    readonly contentType?: pulumi.Input<string>
     /**
-     * Render objects as templates.
+     * The name of the object once it is in the bucket.
      */
-    readonly render?: boolean
+    readonly key: pulumi.Input<string>
+    /**
+     * The path to a file that will be read and uploaded as raw bytes for the object content.
+     */
+    readonly source: pulumi.Input<pulumi.asset.Asset | pulumi.asset.Archive>
 }

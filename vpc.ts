@@ -1,10 +1,12 @@
 import * as aws from "@pulumi/aws"
 import * as awsx from "@pulumi/awsx"
+import * as pulumi from "@pulumi/pulumi"
 
 import * as config from "./config"
 
 
 export const vpc = new awsx.ec2.Vpc("vpc", {
+    cidrBlock: config.vpc?.cidrBlock,
     numberOfAvailabilityZones: 2,
     tags: {
         deployment: config.deploymentName,
@@ -23,14 +25,14 @@ export const sgExternal = new aws.ec2.SecurityGroup("external", {
         protocol: "tcp",
         fromPort: 80,
         toPort: 80,
-        cidrBlocks: ["0.0.0.0/0"],
-        ipv6CidrBlocks: ["::/0"],
+        cidrBlocks: config.vpc?.ingressCidrBlocks || ["0.0.0.0/0"],
+        ipv6CidrBlocks: config.vpc?.ingressCidrBlocks ? undefined : ["::/0"],
     }, {
         protocol: "tcp",
         fromPort: 443,
         toPort: 443,
-        cidrBlocks: ["0.0.0.0/0"],
-        ipv6CidrBlocks: ["::/0"],
+        cidrBlocks: config.vpc?.ingressCidrBlocks || ["0.0.0.0/0"],
+        ipv6CidrBlocks: config.vpc?.ingressCidrBlocks ? undefined : ["::/0"],
     }],
     tags: {
         deployment: config.deploymentName,
@@ -188,7 +190,7 @@ new aws.ec2.SecurityGroupRule("wdt-from-workers", {
 new aws.ec2.VpcEndpoint("s3", {
     serviceName: `com.amazonaws.${config.aws.region}.s3`,
     vpcId: vpc.id,
-    routeTableIds: vpc.getSubnets("private").map((s) => s.routeTable!.id),
+    routeTableIds: pulumi.output(vpc.privateSubnets).apply(subnets => subnets.map((s) => s.routeTable!.id)),
     tags: {
         deployment: config.deploymentName,
     },

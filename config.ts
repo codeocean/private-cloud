@@ -49,6 +49,18 @@ interface ElbAccountIdConfig {
     [region: string]: string,
 }
 
+interface FeaturesConfig {
+    capsuleCache: boolean,
+    onboarding: string,
+    useRInstallPackages: boolean,
+}
+
+interface GitProvidersConfig {
+    github: {
+        org: string,
+    },
+}
+
 interface ServicesConfig {
     registryHost: string,
     segment: {
@@ -61,16 +73,16 @@ interface ServicesConfig {
     }
 }
 
+interface VpcConfig {
+    cidrBlock: string,
+    ingressCidrBlocks: string[],
+}
+
 interface WorkerConfig {
     autoScalingMaxSize: number,
     autoScalingMinSize: number,
     instanceType: string,
     useInstanceStore?: boolean,
-}
-
-interface FeaturesConfig {
-    onboarding: string | undefined,
-    useRInstallPackages: boolean,
 }
 
 const config = new pulumi.Config()
@@ -88,12 +100,16 @@ export const aws: AWSConfig = {
     region: awsConfig.require("region"),
 }
 
+export const vpc = config.getObject<VpcConfig>("vpc")
+
 export const domains: DomainConfig = {
     app: config.require("domains.app"),
     cloudWorkstation: config.get("domains.cloudWorkstation") || config.require("domains.app"),
     files: config.get("domains.files") || config.require("domains.app"),
     git: config.get("domains.git") || config.require("domains.app"),
 }
+
+export const gitProviders = config.getObject<GitProvidersConfig>("gitProviders")
 
 export const services: ServicesConfig = {
     registryHost: deployment.singleInstance ? "localhost:5000" : `registry.${config.require("domains.app")}`,
@@ -136,19 +152,16 @@ export const workers: WorkerConfig = {
     useInstanceStore: config.getBoolean("workers.useInstanceStore"),
 }
 
-export const features: FeaturesConfig = {
-    onboarding: config.get("features.onboarding"),
-    useRInstallPackages: config.getBoolean("features.useRInstallPackages") === true,
-}
+export const features = config.getObject<FeaturesConfig>("features")
 
 export const ami: AMIConfig = {
     services: {
-        "us-east-1": config.get("services.ami") || "ami-07c34b2916133f6d5",
-        "eu-central-1": config.get("services.ami") || "ami-0dc44fcf440874842",
+        "us-east-1": config.get("services.ami") || "ami-046bf27b6e4ef8d9b",
+        "eu-central-1": config.get("services.ami") || "ami-0bb43914514713adf",
     },
     worker: {
-        "us-east-1": config.get("workers.ami") || "ami-019e16020f4d72242",
-        "eu-central-1": config.get("workers.ami") || "ami-03c31b1b296d8a243",
+        "us-east-1": config.get("workers.ami") || "ami-0c91f91e5af3591e0",
+        "eu-central-1": config.get("workers.ami") || "ami-001eec08608fedd55",
     },
 }
 

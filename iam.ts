@@ -8,7 +8,7 @@ import * as s3 from "./s3"
 
 export const servicesInstanceRole = new aws.iam.Role("ServicesInstanceRole", {
     description: "Allows EC2 services instance to call AWS services.",
-    assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(aws.iam.Ec2Principal),
+    assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(aws.iam.Principals.Ec2Principal),
     tags: {
         deployment: config.deploymentName,
     },
@@ -80,7 +80,7 @@ new aws.iam.RolePolicyAttachment("servicesinstancerole-s3-policy", {
 
 export const workerInstanceRole = new aws.iam.Role("WorkerInstanceRole", {
     description: "Allows EC2 worker instance to call AWS services.",
-    assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(aws.iam.Ec2Principal),
+    assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(aws.iam.Principals.Ec2Principal),
     tags: {
         deployment: config.deploymentName,
     },

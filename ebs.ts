@@ -1,4 +1,5 @@
 import * as aws from "@pulumi/aws"
+import * as pulumi from "@pulumi/pulumi"
 
 import * as config from "./config"
 import * as vpc from "./vpc"
@@ -7,7 +8,7 @@ import * as vpc from "./vpc"
 export const dataVolume = new aws.ebs.Volume("data", {
     type: "gp2",
     size: 300,
-    availabilityZone: vpc.vpc.privateSubnets[0].subnet.availabilityZone,
+    availabilityZone: pulumi.output(vpc.vpc.privateSubnets).apply(v => v[0].subnet.availabilityZone),
     encrypted: true,
     tags: {
         deployment: config.deploymentName,

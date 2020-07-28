@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+## 0.5.0 (2020-07-28)
+
+- External Git
+- Capsule interface
+- Capsule cache
+- Allow to restrict access to specific ingress CIDR blocks
+- Add support for specifying VPC CIDR block
+- Migrate to Pulumi 2
+- Improved CloudWatch alerting on data volume disk utilization
+- CloudWatch dashboard for data EBS volume metrics
+
 ## 0.4.2 (2020-07-20)
 
 - Change cloudWatch alarms

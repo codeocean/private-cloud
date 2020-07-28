@@ -13,7 +13,7 @@ import * as vpc from "./vpc"
 
 const dedicatedWorkerImage = config.ami.worker[config.aws.region]
 
-const { accountId } = aws.getCallerIdentity()
+const accountId = pulumi.output(aws.getCallerIdentity()).accountId
 
 export const launchTemplate = new aws.ec2.LaunchTemplate("dedicated-worker", {
     tags: {
@@ -59,7 +59,7 @@ export const launchTemplate = new aws.ec2.LaunchTemplate("dedicated-worker", {
         httpPutResponseHopLimit: 2,
     },
     networkInterfaces: [{
-        subnetId: vpc.vpc.privateSubnetIds[0],
+        subnetId: pulumi.output(vpc.vpc.privateSubnetIds)[0],
         securityGroups: [vpc.sgWorkers.id],
         deleteOnTermination: true,
     }],
@@ -68,87 +68,92 @@ export const launchTemplate = new aws.ec2.LaunchTemplate("dedicated-worker", {
     },
     userData: pulumi.all([
         s3.configBucket.bucket,
+        efs.capsuleCache?.id,
         efs.datasets.id,
         config.stackname,
     ]).apply(([
         configBucketName,
+        capsuleCacheEfsId,
         datasetsEfsId,
         pulumiStackName,
     ]) => {
         const template = handlebars.compile(fs.readFileSync("ec2-init-dedicated-worker.sh", "utf8"))
         return Buffer.from(template({
             configBucketName,
+            capsuleCacheEfsId,
             datasetsEfsId,
             pulumiStackName,
         })).toString("base64")
     }),
 })
 
-const policy = new aws.iam.Policy("DedicatedMachines", {
-    description: "Policy for managing dedicated machines",
-    policy: {
-        Version: "2012-10-17",
-        Statement: [{
-            Effect: "Allow",
-            Action: [
-                "ec2:DescribeInstances",
-                "ec2:DescribeInstanceTypes",
-            ],
-            Resource: "*",
-        }, {
-            Effect: "Allow",
-            Action: "iam:PassRole",
-            Resource: iam.workerInstanceRole.arn,
-        }, {
-            Effect: "Allow",
-            Action: "ec2:RunInstances",
-            Resource: [
-                // `arn:aws:ec2:${config.aws.region}::image/${config.ami.worker[config.aws.region]}`,
-                `arn:aws:ec2:${config.aws.region}::image/${dedicatedWorkerImage}`,
-                `arn:aws:ec2:${config.aws.region}:${accountId}:instance/*`,
-                `arn:aws:ec2:${config.aws.region}:${accountId}:key-pair/${config.aws.keyPair}`,
-                launchTemplate.arn,
-                `arn:aws:ec2:${config.aws.region}:${accountId}:network-interface/*`,
-                vpc.sgWorkers.arn,
-                ...vpc.vpc.privateSubnets.map((subnet) => subnet.subnet.arn),
-                `arn:aws:ec2:${config.aws.region}:${accountId}:volume/*`,
-            ],
-        }, {
-            Effect: "Allow",
-            Action: "ec2:CreateTags",
-            Resource: [
-                `arn:aws:ec2:${config.aws.region}:${accountId}:instance/*`,
-                `arn:aws:ec2:${config.aws.region}:${accountId}:volume/*`,
-            ],
-            Condition: {
-                StringEquals: {
-                    "ec2:CreateAction": "RunInstances",
+pulumi.all([accountId, vpc.vpc.privateSubnets]).apply(([accountId, subnets]) => {
+    const policy = new aws.iam.Policy("DedicatedMachines", {
+        description: "Policy for managing dedicated machines",
+        policy: {
+            Version: "2012-10-17",
+            Statement: [{
+                Effect: "Allow",
+                Action: [
+                    "ec2:DescribeInstances",
+                    "ec2:DescribeInstanceTypes",
+                ],
+                Resource: "*",
+            }, {
+                Effect: "Allow",
+                Action: "iam:PassRole",
+                Resource: iam.workerInstanceRole.arn,
+            }, {
+                Effect: "Allow",
+                Action: "ec2:RunInstances",
+                Resource: [
+                    // `arn:aws:ec2:${config.aws.region}::image/${config.ami.worker[config.aws.region]}`,
+                    `arn:aws:ec2:${config.aws.region}::image/${dedicatedWorkerImage}`,
+                    `arn:aws:ec2:${config.aws.region}:${accountId}:instance/*`,
+                    `arn:aws:ec2:${config.aws.region}:${accountId}:key-pair/${config.aws.keyPair}`,
+                    launchTemplate.arn,
+                    `arn:aws:ec2:${config.aws.region}:${accountId}:network-interface/*`,
+                    vpc.sgWorkers.arn,
+                    ...subnets.map(subnet => subnet.subnet.arn),
+                    `arn:aws:ec2:${config.aws.region}:${accountId}:volume/*`,
+                ],
+            }, {
+                Effect: "Allow",
+                Action: "ec2:CreateTags",
+                Resource: [
+                    `arn:aws:ec2:${config.aws.region}:${accountId}:instance/*`,
+                    `arn:aws:ec2:${config.aws.region}:${accountId}:volume/*`,
+                ],
+                Condition: {
+                    StringEquals: {
+                        "ec2:CreateAction": "RunInstances",
+                    },
+                    "ForAllValues:StringEquals": {
+                        "aws:TagKeys": [
+                            "Name",
+                            "deployment",
+                            "role",
+                            "codeocean.com/user",
+                            "codeocean.com/capsule",
+                        ],
+                    },
                 },
-                "ForAllValues:StringEquals": {
-                    "aws:TagKeys": [
-                        "Name",
-                        "deployment",
-                        "role",
-                        "codeocean.com/user",
-                        "codeocean.com/capsule",
-                    ],
+            }, {
+                Effect: "Allow",
+                Action: "ec2:TerminateInstances",
+                Resource: `arn:aws:ec2:${config.aws.region}:${accountId}:instance/*`,
+                Condition: {
+                    StringEquals: {
+                        "ec2:ResourceTag/deployment": "codeocean-private-cloud",
+                        "ec2:ResourceTag/role": "dedicated-worker",
+                    },
                 },
-            },
-        }, {
-            Effect: "Allow",
-            Action: "ec2:TerminateInstances",
-            Resource: `arn:aws:ec2:${config.aws.region}:${accountId}:instance/*`,
-            Condition: {
-                StringEquals: {
-                    "ec2:ResourceTag/deployment": "codeocean-private-cloud",
-                    "ec2:ResourceTag/role": "dedicated-worker",
-                },
-            },
-        }],
-    },
-})
+            }],
+        },
+    })
 
-new aws.iam.RolePolicyAttachment("servicesinstancerole-dedicated-machines-policy", {
-    policyArn: policy.arn,
-    role: iam.servicesInstanceRole.name,
+    new aws.iam.RolePolicyAttachment("servicesinstancerole-dedicated-machines-policy", {
+        policyArn: policy.arn,
+        role: iam.servicesInstanceRole.name,
+    })
 })

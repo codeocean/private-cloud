@@ -8,6 +8,9 @@
 	"StatsExpiration": 3,
 	"AlgorithmMountPath": "/worker",
 	"DatasetsFolder": "/datasets",
+	{{#if config.features.capsuleCache}}
+	"CapsuleCacheFolder": "/capsule-cache",
+	{{/if}}
 	"CloudWorkstation": {
 		"NetType": "host",
 		"Host": "https://{{config.domains.cloudWorkstation}}",

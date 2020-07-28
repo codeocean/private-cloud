@@ -46,16 +46,19 @@ const workersLaunchTemplate = new aws.ec2.LaunchTemplate("workers", {
     },
     userData: pulumi.all([
         s3.configBucket.bucket,
+        efs.capsuleCache?.id,
         efs.datasets.id,
         config.stackname,
     ]).apply(([
         configBucketName,
+        capsuleCacheEfsId,
         datasetsEfsId,
         pulumiStackName,
     ]) => {
         const template = handlebars.compile(fs.readFileSync("ec2-init-worker.sh", "utf8"))
         return Buffer.from(template({
             configBucketName,
+            capsuleCacheEfsId,
             datasetsEfsId,
             pulumiStackName,
         })).toString("base64")
@@ -86,7 +89,7 @@ export const workersAsg = new aws.autoscaling.Group("workers", {
         propagateAtLaunch: true,
         value: "worker",
     }],
-    vpcZoneIdentifiers: vpc.vpc.privateSubnets.map((s) => s.subnet.id),
+    vpcZoneIdentifiers: vpc.vpc.privateSubnetIds,
 })
 
 export const workersAvailableSlotsScaleOutPolicy = new aws.autoscaling.Policy("workers-available-slots-scale-out", {

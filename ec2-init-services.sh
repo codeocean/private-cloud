@@ -22,6 +22,11 @@ echo "UUID=$(blkid -s UUID -o value /dev/nvme2n1)  /data  xfs defaults 0 2" >> /
 mount /data
 
 # Mount EFS
+{{#if capsuleCacheEfsId}}
+mkdir /capsule-cache
+echo "{{capsuleCacheEfsId}}:/ /capsule-cache efs _netdev,tls,iam 0 0" >> /etc/fstab
+mount /capsule-cache
+{{/if}}
 mkdir /datasets
 echo "{{datasetsEfsId}}:/ /datasets efs _netdev,tls,iam 0 0" >> /etc/fstab
 mount /datasets
