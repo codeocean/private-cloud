@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.5.1 (2020-07-30)
+
+- Update capsule sample code
+
 ## 0.5.0 (2020-07-28)
 
 - External Git

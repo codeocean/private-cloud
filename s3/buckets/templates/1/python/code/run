@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 set -ex
 
-plot_title="Hello Code Ocean"
-number_of_cycles=3
-input_data="../data/sample-data.txt"
+# This is the master script for the capsule. When you click "Reproducible Run", the code in this file will execute.
+python -u main.py "$@"
 
-python -u main.py "$plot_title" $number_of_cycles $input_data
+# To render the jupyter notebook to .html format and save to the results folder, install jupyter in the environment 
+# editor using conda or pip and uncomment the following lines.
+# jupyter nbconvert \
+# 	--ExecutePreprocessor.allow_errors=True \
+# 	--ExecutePreprocessor.timeout=-1 \
+# 	--FilesWriter.build_directory=../results \
+# 	--execute 'sample.ipynb'
