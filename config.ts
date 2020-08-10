@@ -156,8 +156,8 @@ export const features = config.getObject<FeaturesConfig>("features")
 
 export const ami: AMIConfig = {
     services: {
-        "us-east-1": config.get("services.ami") || "ami-046bf27b6e4ef8d9b",
-        "eu-central-1": config.get("services.ami") || "ami-0bb43914514713adf",
+        "us-east-1": config.get("services.ami") || "ami-026382a129c062db4",
+        "eu-central-1": config.get("services.ami") || "ami-077bc88004fc31c13",
     },
     worker: {
         "us-east-1": config.get("workers.ami") || "ami-0c91f91e5af3591e0",

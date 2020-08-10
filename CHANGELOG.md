@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.5.2 (2020-08-09)
+
+- Bug fix in data reported to analytics pipeline
+
 ## 0.5.1 (2020-07-30)
 
 - Update capsule sample code
