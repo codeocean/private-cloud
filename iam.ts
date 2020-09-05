@@ -108,7 +108,6 @@ const workerInstanceS3AccessPolicy = new aws.iam.Policy("WorkerInstanceS3Access"
             Effect: "Allow",
             Action: "s3:GetObject",
             Resource: [
-                s3BucketObjectsArn(s3.licensesBucket),
                 s3BucketObjectsArn(s3.configBucket),
                 s3BucketObjectsArn(s3.resultsBucket),
                 s3BucketObjectsArn(s3.datasetsBucket),
@@ -118,7 +117,6 @@ const workerInstanceS3AccessPolicy = new aws.iam.Policy("WorkerInstanceS3Access"
             Action: "s3:ListBucket",
             Resource: [
                 s3.configBucket.arn,
-                s3.licensesBucket.arn,
                 s3.datasetsBucket.arn,
             ],
         }, {
@@ -178,6 +176,26 @@ const workerInstanceCloudWatchAccessPolicy = new aws.iam.Policy("WorkerInstanceC
 new aws.iam.RolePolicyAttachment("workerinstancerole-cloudwatch-policy", {
     policyArn: workerInstanceCloudWatchAccessPolicy.arn,
     role: workerInstanceRole.name,
+})
+
+// Backup
+
+export const awsBackupDefaultServiceRole = new aws.iam.Role("BackupRole", {
+    description: "Provides AWS Backup permission to create backups and perform restores on your behalf across AWS services.",
+    assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({ Service: "backup.amazonaws.com" }),
+    tags: {
+        deployment: config.deploymentName,
+    },
+})
+
+new aws.iam.RolePolicyAttachment("backuprole-backup-policy", {
+    policyArn: "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup",
+    role: awsBackupDefaultServiceRole.name,
+})
+
+new aws.iam.RolePolicyAttachment("backuprole-restore-policy", {
+    policyArn: "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForRestores",
+    role: awsBackupDefaultServiceRole.name,
 })
 
 // Helpers

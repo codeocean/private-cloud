@@ -79,13 +79,6 @@ export const datasetsBucket = new Bucket("datasets", {
     protect: true,
 })
 
-export const licensesBucket = new Bucket("licenses", {
-    accessLogsBucket,
-    extraArgs: {
-        forceDestroy: true,
-    },
-})
-
 export const publicBucket = new Bucket("public", {
     accessLogsBucket,
     allowVpcRead: true,

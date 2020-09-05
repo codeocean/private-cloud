@@ -81,7 +81,14 @@ interface VpcConfig {
 interface WorkerConfig {
     autoScalingMaxSize: number,
     autoScalingMinSize: number,
+    autoScalingIdleTimeout: number,
     instanceType: string,
+    maintainIdleWorker: boolean,
+    reservedMemory: number,
+    slotConfig: {
+        cpu: number,
+        memory: number,
+    },
     useInstanceStore?: boolean,
 }
 
@@ -147,8 +154,15 @@ if (config.get("auth.saml.domain")) {
 
 export const workers: WorkerConfig = {
     autoScalingMaxSize: config.getNumber("workers.autoScalingMaxSize") || 3,
-    autoScalingMinSize: config.getNumber("workers.autoScalingMinSize") || 1,
+    autoScalingMinSize: config.getNumber("workers.autoScalingMinSize") || 0,
+    autoScalingIdleTimeout: config.getNumber("workers.autoScalingIdleTimeout") || 5,
     instanceType: config.get("workers.instanceType") || "r5d.4xlarge",
+    maintainIdleWorker: config.getBoolean("workers.maintainIdleWorker") || false,
+    reservedMemory: config.getNumber("workers.reservedMemory") || 1073741824,
+    slotConfig: {
+        cpu: config.getNumber("workers.slotConfig.cpu") || 1.0,
+        memory: config.getNumber("workers.slotConfig.memory") || 8129604096,
+    },
     useInstanceStore: config.getBoolean("workers.useInstanceStore"),
 }
 
@@ -156,12 +170,12 @@ export const features = config.getObject<FeaturesConfig>("features")
 
 export const ami: AMIConfig = {
     services: {
-        "us-east-1": config.get("services.ami") || "ami-026382a129c062db4",
-        "eu-central-1": config.get("services.ami") || "ami-077bc88004fc31c13",
+        "us-east-1": config.get("services.ami") || "ami-06bddc346d4f8a069",
+        "eu-central-1": config.get("services.ami") || "ami-04abe8596d8d01331",
     },
     worker: {
-        "us-east-1": config.get("workers.ami") || "ami-0c91f91e5af3591e0",
-        "eu-central-1": config.get("workers.ami") || "ami-001eec08608fedd55",
+        "us-east-1": config.get("workers.ami") || "ami-0c50a8320c2468921",
+        "eu-central-1": config.get("workers.ami") || "ami-0d485021b96e5487d",
     },
 }
 

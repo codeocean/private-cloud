@@ -5,6 +5,8 @@ General:
   DatasetsURITemplate: https://{{config.domains.files}}/datasets/{owner_id}/{dataset_id}{+path}
   GiteaProxyBaseURL: https://{{config.domains.git}}
   NetworkType: compose
+NewUser:
+  EulaVersion: 1
 Security:
   TrustForwardedHeaders: true
   TrustedGitHosts:
@@ -57,7 +59,6 @@ AWS:
     Buckets:
       Assets: {{buckets.assets}}
       Datasets: {{buckets.datasets}}
-      Licenses: {{buckets.licenses}}
       Public: {{buckets.public}}
       Results: {{buckets.results}}
       Temp: {{buckets.temp}}
@@ -128,7 +129,7 @@ Segment:
 InitData:
   Affiliations: false
   Fields: true
-  Licenses: true
+  Licenses: false
   Journals: false
   Languages:
     Matlab: true

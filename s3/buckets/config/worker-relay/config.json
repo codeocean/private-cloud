@@ -15,8 +15,7 @@
 	},
 	"Storage": {
 		"Region": "{{config.aws.region}}",
-		"Bucket": "{{buckets.results}}",
-		"LicenseBucket": "{{buckets.licenses}}"
+		"Bucket": "{{buckets.results}}"
 	},
 	"Redis": {
 		"Address": "redis",

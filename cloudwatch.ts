@@ -11,47 +11,90 @@ import * as ec2 from "./ec2"
 import * as lb from "./lb"
 import * as sns from "./sns"
 
-// Scale out so we have machine with the maximum amount of slots we make a available for a single run
-// we could do better by scaling out only when large runs come in, but the current architecture doesn't
-// keep pending runs backend side (Either in DB or Queue).
-new aws.cloudwatch.MetricAlarm("workers-available-slots-low", {
-    alarmActions: [asg.workersAvailableSlotsScaleOutPolicy.arn],
-    alarmDescription: "Workers available slots are low",
-    comparisonOperator: "LessThanThreshold",
-    datapointsToAlarm: 6,
-    dimensions: {
-        AutoScalingGroupName: asg.workersAsg.name,
-    },
-    evaluationPeriods: 6,
-    metricName: "AvailableSlots",
-    namespace: "CodeOcean",
-    period: 10,
-    statistic: "Maximum",
-    threshold: 16, // TODO This changes dependening on the slots available in each worker
-    tags: {
-        deployment: config.deploymentName,
-    },
-})
+if (!config.workers.maintainIdleWorker) {
+    // Scale out when all computation run requests in an evaluation period fail with an overloaded status
+    new aws.cloudwatch.MetricAlarm("workers-available-slots-low", {
+        alarmActions: [asg.workersAvailableSlotsScaleOutPolicy.arn],
+        alarmDescription: "No workers available to execute a computation task",
+        comparisonOperator: "GreaterThanOrEqualToThreshold",
+        datapointsToAlarm: 1,
+        dimensions: {
+            "InstanceID": ec2.servicesInstance.id,
+            "MachineType": "0"
+        },
+        evaluationPeriods: 1,
+        metricName: "OverloadStatus",
+        namespace: "CodeOcean",
+        period: 10,
+        statistic: "Minimum",
+        tags: {
+            deployment: config.deploymentName,
+        },
+        threshold: 1, 
+    })
 
-// Scale in so we have a maximum of 1 excess machine
-new aws.cloudwatch.MetricAlarm("workers-available-slots-high", {
-    alarmActions: [asg.workersAvailableSlotsScaleInPolicy.arn],
-    alarmDescription: "Workers available slots are high",
-    comparisonOperator: "GreaterThanOrEqualToThreshold",
-    datapointsToAlarm: 6,
-    dimensions: {
-        AutoScalingGroupName: asg.workersAsg.name,
-    },
-    evaluationPeriods: 6,
-    metricName: "AvailableSlots",
-    namespace: "CodeOcean",
-    period: 10,
-    statistic: "Sum",
-    threshold: 320, // TODO This changes dependening on the slots available in each worker
-    tags: {
-        deployment: config.deploymentName,
-    },
-})
+    // Scale in whenever a worker is idle
+    new aws.cloudwatch.MetricAlarm("workers-available-slots-high", {
+        alarmActions: [asg.workersAvailableSlotsScaleInPolicy.arn],
+        alarmDescription: "Workers available slots are high",
+        comparisonOperator: "GreaterThanThreshold",
+        datapointsToAlarm: config.workers.autoScalingIdleTimeout,
+        dimensions: {
+            AutoScalingGroupName: asg.workersAsg.name,
+        },
+        evaluationPeriods: config.workers.autoScalingIdleTimeout,
+        metricName: "TotalSlots",
+        namespace: "CodeOcean",
+        period: 60,
+        statistic: "Average",
+        threshold: 0,
+        tags: {
+            deployment: config.deploymentName,
+        },
+        treatMissingData: "notBreaching"
+    })
+} else {
+    // Scale out so we have machine with the maximum amount of slots we make a available for a single run
+    new aws.cloudwatch.MetricAlarm("workers-available-slots-low", {
+        alarmActions: [asg.workersAvailableSlotsScaleOutPolicy.arn],
+        alarmDescription: "Workers available slots are low",
+        comparisonOperator: "LessThanThreshold",
+        datapointsToAlarm: 6,
+        dimensions: {
+            AutoScalingGroupName: asg.workersAsg.name,
+        },
+        evaluationPeriods: 6,
+        metricName: "AvailableSlots",
+        namespace: "CodeOcean",
+        period: 10,
+        statistic: "Maximum",
+        threshold: 16,
+        tags: {
+            deployment: config.deploymentName,
+        },
+    })
+
+    // Scale in so we have a maximum of 1 excess machine
+    new aws.cloudwatch.MetricAlarm("workers-available-slots-high", {
+        alarmActions: [asg.workersAvailableSlotsScaleInPolicy.arn],
+        alarmDescription: "Workers available slots are high",
+        comparisonOperator: "GreaterThanOrEqualToThreshold",
+        datapointsToAlarm: 6,
+        dimensions: {
+            AutoScalingGroupName: asg.workersAsg.name,
+        },
+        evaluationPeriods: 6,
+        metricName: "AvailableSlots",
+        namespace: "CodeOcean",
+        period: 10,
+        statistic: "Sum",
+        threshold: 320,
+        tags: {
+            deployment: config.deploymentName,
+        },
+    })
+}
+
 
 interface VolumeUsageAlarmArgs {
     minutesToAlarm: number

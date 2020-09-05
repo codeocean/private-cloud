@@ -1,7 +1,7 @@
 {
 	"ListenPort": 8200,
 	"SlotScheduling": true,
-	"ReservedMemory": 1073741824,
+	"ReservedMemory": {{config.workers.reservedMemory}},
 	"DedicatedReservedMemory": 209715200,
 	"ScaleCheckFrequency": 60,
 	"StatsUpdateFrequency": 1,
@@ -28,7 +28,6 @@
 	"Storage": {
 		"Region": "{{config.aws.region}}",
 		"Bucket": "{{buckets.results}}",
-		"LicenseBucket": "{{buckets.licenses}}",
 		"DatasetsBucket": "{{buckets.datasets}}"
 	},
 	"Redis": {
@@ -66,8 +65,8 @@
 		"DockerImage": "524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/tools:2020-06-28-5077a92"
 	},
 	"Slot": {
-		"CPU": 1.0,
-		"Memory": 8129604096
+		"CPU": {{config.workers.slotConfig.cpu}},
+		"Memory": {{config.workers.slotConfig.memory}}
 	},
 	"GiteaProxyURL": "https://{{config.domains.git}}",
 	"Conversions": {

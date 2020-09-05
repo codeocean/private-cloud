@@ -17,7 +17,6 @@ const context = pulumi.all([
     accountId,
     s3.assetsBucket.bucket,
     s3.datasetsBucket.bucket,
-    s3.licensesBucket.bucket,
     s3.publicBucket.bucket,
     s3.resultsBucket.bucket,
     s3.tempBucket.bucket,
@@ -42,7 +41,6 @@ const context = pulumi.all([
     accountId_,
     assetsBucketName,
     datasetsBucketName,
-    licensesBucketName,
     publicBucketName,
     resultsBucketName,
     tempBucketName,
@@ -71,7 +69,6 @@ const context = pulumi.all([
         buckets: {
             assets: assetsBucketName,
             datasets: datasetsBucketName,
-            licenses: licensesBucketName,
             public: publicBucketName,
             results: resultsBucketName,
             temp: tempBucketName,

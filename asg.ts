@@ -68,7 +68,7 @@ const workersLaunchTemplate = new aws.ec2.LaunchTemplate("workers", {
 
 export const workersAsg = new aws.autoscaling.Group("workers", {
     name: pulumi.interpolate`${workersLaunchTemplate.name}-${workersLaunchTemplate.latestVersion}-asg`, // force a redeployment when launch template changes
-    defaultCooldown: 120,
+    defaultCooldown: 60,
     enabledMetrics: ["GroupMinSize", "GroupMaxSize", "GroupDesiredCapacity", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupTerminatingInstances", "GroupTotalInstances"],
     launchTemplate: {
         id: workersLaunchTemplate.id,
@@ -90,12 +90,13 @@ export const workersAsg = new aws.autoscaling.Group("workers", {
         value: "worker",
     }],
     vpcZoneIdentifiers: vpc.vpc.privateSubnetIds,
+    waitForCapacityTimeout: "0",
 })
 
 export const workersAvailableSlotsScaleOutPolicy = new aws.autoscaling.Policy("workers-available-slots-scale-out", {
     adjustmentType: "ChangeInCapacity",
     autoscalingGroupName: workersAsg.name,
-    estimatedInstanceWarmup: 60,
+    estimatedInstanceWarmup: 120,
     policyType: "StepScaling",
     stepAdjustments: [{
         metricIntervalUpperBound: "0",
@@ -106,7 +107,6 @@ export const workersAvailableSlotsScaleOutPolicy = new aws.autoscaling.Policy("w
 export const workersAvailableSlotsScaleInPolicy = new aws.autoscaling.Policy("workers-available-slots-scale-in", {
     adjustmentType: "ChangeInCapacity",
     autoscalingGroupName: workersAsg.name,
-    estimatedInstanceWarmup: 60,
     policyType: "StepScaling",
     stepAdjustments: [{
         metricIntervalLowerBound: "0",

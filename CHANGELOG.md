@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+## 0.6.0 (2020-09-06)
+
+- Mandatory tags are now required when creating datasets and capturing results
+- It is now possible to capture results from the Code Ocean IDE in addition to
+capturing from Cloud Workstation
+- Importing a dataset from S3 or Google Cloud Bucket doesn't require the UI to be kept open
+- Allow site admin to generate password reset links for users
+- Add support for scaling in workers to 0 when idle
+- Add automated daily EBS data volume backups
+- Various bug fixes and performance improvements
+
 ## 0.5.2 (2020-08-09)
 
 - Bug fix in data reported to analytics pipeline
