@@ -3,6 +3,7 @@ General:
   BaseURL: https://{{config.domains.app}}
   FilesURITemplate: https://{{config.domains.files}}/files/{owner_id}/{capsule_id}{+path}
   DatasetsURITemplate: https://{{config.domains.files}}/datasets/{owner_id}/{dataset_id}{+path}
+  InputURITemplate: https://{{config.domains.files}}/input/{owner_id}/{capsule_id}{+path}
   GiteaProxyBaseURL: https://{{config.domains.git}}
   NetworkType: compose
 NewUser:
@@ -36,7 +37,21 @@ Auth:
     {{#with config.auth.saml}}
     IdentityProviders:
       - Domain: {{domain}}
+        {{#if metadataUrl}}
         MetadataURL: {{metadataUrl}}
+        {{/if}}
+        {{#if metadata}}
+        {{#with metadata}}
+        Metadata:
+          EntityID: {{entityID}}
+          SSOURL: {{ssoUrl}}
+          {{#*inline "Certificate"}}
+{{certificate}}
+          {{/inline}}
+          Certificate: |
+            {{> Certificate}}
+        {{/with}}
+        {{/if}}
     {{/with}}
     {{/if}}
   OAuth2:
@@ -59,6 +74,7 @@ AWS:
     Buckets:
       Assets: {{buckets.assets}}
       Datasets: {{buckets.datasets}}
+      InputFiles: {{buckets.inputfiles}}
       Public: {{buckets.public}}
       Results: {{buckets.results}}
       Temp: {{buckets.temp}}
@@ -149,40 +165,18 @@ Resources:
   MachineTypes:
     0:
       Slot:
-        CPU: 1.0
-        Memory: 8380219392
-      DefaultClass: xsmall
+        CPU: {{slotsConfig.slot.cpu}}
+        Memory: {{slotsConfig.slot.memory}}
+      DefaultClass: {{slotsConfig.defaultClass}}
       Classes:
-        xsmall:
-          Name: X-Small
-          Description: 1 cores / 8 GB RAM
-          Order: 1
+        {{#each slotsConfig.classes}}
+        {{this.id}}:
+          Name: {{this.name}}
+          Description: {{this.description}}
+          Order: {{this.order}}
           Resources:
-            Slots: 1
-        small:
-          Name: Small
-          Description: 2 cores / 16 GB RAM
-          Order: 2
-          Resources:
-            Slots: 2
-        2xsmall:
-          Name: 2x Small
-          Description: 4 cores / 32 GB RAM
-          Order: 3
-          Resources:
-            Slots: 4
-        medium:
-          Name: Medium
-          Description: 8 cores / 64 GB RAM
-          Order: 4
-          Resources:
-            Slots: 8
-        large:
-          Name: Large
-          Description: 16 cores / 128 GB RAM
-          Order: 5
-          Resources:
-            Slots: 16
+            Slots: {{this.resource.slots}}
+        {{/each}}
     1:
       Slot:
         CPU: 1.0
@@ -281,7 +275,9 @@ DedicatedMachines:
     - r5.24xlarge
 Features:
   DisableAnalytics: false
+  {{#unless config.features.enableIntercom}}
   DisableIntercom: true
+  {{/unless}}
   DirectPublication: true
   BasicMetadataOnly: true
   {{#if config.features.onboarding}}
@@ -295,8 +291,15 @@ Features:
   NonAdminListUsers: true
   Datasets: true
   CapsuleGUI: true
+  RunOnlyCapsules: true
+  {{#if config.features.noPackageSuggestions}}
+  DisablePackageSuggestions: true
+  {{/if}}
+  AlwaysGitIgnoreData: true
 Datasets:
   CacheTTLDays: 30
+Input:
+  InputPath: /my-input
 Services:
   affiliation:
     URL: http://afil:8091
@@ -340,6 +343,8 @@ Services:
     URL: http://gw:8080
   ide:
     URL: http://ide:8109
+  input-files:
+    URL: http://input-files:8506
   installer:
     URL: http://inst:8102
   job:

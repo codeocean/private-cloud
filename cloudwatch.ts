@@ -2,6 +2,7 @@ import * as fs from "fs"
 
 import * as aws from "@pulumi/aws"
 import * as pulumi from "@pulumi/pulumi"
+import * as AWS from "aws-sdk"
 import * as handlebars from "handlebars"
 
 import * as asg from "./asg"
@@ -10,6 +11,53 @@ import * as ebs from "./ebs"
 import * as ec2 from "./ec2"
 import * as lb from "./lb"
 import * as sns from "./sns"
+
+const getLogGroupNames = new AWS.CloudWatchLogs().describeLogGroups({
+    logGroupNamePrefix: `/codeocean/${config.stackname}/`
+}).promise().then(v => v.logGroups?.map(v => v.logGroupName))
+
+async function getLogGroupOpts(logGroupSuffix: string): Promise<pulumi.CustomResourceOptions | undefined> {
+    const logGroupNames = await getLogGroupNames
+
+    if (logGroupNames?.includes(`/codeocean/${config.stackname}/${logGroupSuffix}`)) {
+        return {
+            import: `/codeocean/${config.stackname}/${logGroupSuffix}`,
+            ignoreChanges: ["tags", "retentionInDays"],
+        }
+    }
+
+    return undefined
+}
+
+export const instancesLogGroup = getLogGroupOpts("instances").then(opts => {
+    return new aws.cloudwatch.LogGroup("instances", {
+        name: `/codeocean/${config.stackname}/instances`,
+        retentionInDays: 30,
+        tags: {
+            deployment: config.deploymentName,
+        },
+    }, opts)
+})
+
+export const servicesLogGroup = getLogGroupOpts("services").then(opts => {
+    return new aws.cloudwatch.LogGroup("services", {
+        name: `/codeocean/${config.stackname}/services`,
+        retentionInDays: 30,
+        tags: {
+            deployment: config.deploymentName,
+        },
+    }, opts)
+})
+
+getLogGroupOpts("workers").then(opts => {
+    return new aws.cloudwatch.LogGroup("workers", {
+        name: `/codeocean/${config.stackname}/workers`,
+        retentionInDays: 30,
+        tags: {
+            deployment: config.deploymentName,
+        },
+    }, opts)
+})
 
 if (!config.workers.maintainIdleWorker) {
     // Scale out when all computation run requests in an evaluation period fail with an overloaded status

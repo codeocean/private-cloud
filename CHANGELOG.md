@@ -1,6 +1,25 @@
 CHANGELOG
 =========
 
+## 0.7.0 (2020-10-01)
+
+- Interface tab: support for file upload as part of the interface tab run
+- Published capsules can now be run directly from the explore page without a need to
+  duplicate them first
+- introduced an easy way to discover capsules you run directly from the explore page,
+  with the addition of a new section in the capsule page called: "Run by me"
+- Fix for downloading files from non- `us-east-1` AWS regions
+- Fixed issue with long filenames in datasets/ capture results detail pages:
+  - Increased the size of the table in Dataset and Results to account for long file names
+  - Added a tool tip for long file names
+- Allow to scale down or up worker machine size within the `r5d` family of memory
+  optimized EC2 instances
+- Fixed a race condition in CloudWatch log groups creation after initial deployment
+  that caused the system to fail to start
+- Add option to configure SAML SSO identity provider using metadata fields: Entity ID,
+  SSO URL, and X.509 certificate
+- Other bug fixes and performance improvements
+
 ## 0.6.0 (2020-09-06)
 
 - Mandatory tags are now required when creating datasets and capturing results

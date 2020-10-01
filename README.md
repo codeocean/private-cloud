@@ -48,8 +48,17 @@ pulumi config set --secret auth.google.clientSecret
 
 To configure SAML SSO:
 ```
-pulumi config set auth.saml.domain
-pulumi config set auth.saml.metadataUrl
+pulumi config set --path auth.saml.domain
+```
+Then either configure the identity provider metadata URL:
+```
+pulumi config set --path auth.saml.metadataUrl
+```
+or metadata information:
+```
+pulumi config set --path auth.saml.metadata.entityID
+pulumi config set --path auth.saml.metadata.ssoUrl
+pulumi config set --path auth.saml.metadata.certificate < /path/to/cert
 ```
 
 To configure GitHub organization support:
@@ -83,7 +92,7 @@ ns-673.awsdns-20.net.
 If you update an existing NS record in your parent domain, the new NS record could take time to propagate.
 This could fail the provisioning of an SSL certificate that is part of the deployment, as it relies on
 DNS verification, and in turn, would fail the deployment.
-Wait until the DNS change propogates and run the deployment again with `pulumi up`.
+Wait until the DNS change propagates and run the deployment again with `pulumi up`.
 
 ## System Initialization
 

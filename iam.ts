@@ -39,6 +39,7 @@ const servicesInstanceS3AccessPolicy = new aws.iam.Policy("ServicesInstanceS3Acc
                 s3BucketObjectsArn(s3.assetsBucket),
                 s3BucketObjectsArn(s3.configBucket),
                 s3BucketObjectsArn(s3.datasetsBucket),
+                s3BucketObjectsArn(s3.inputFilesBucket),
                 s3BucketObjectsArn(s3.publicBucket),
                 s3BucketObjectsArn(s3.resultsBucket),
                 s3BucketObjectsArn(s3.tempBucket),
@@ -50,6 +51,7 @@ const servicesInstanceS3AccessPolicy = new aws.iam.Policy("ServicesInstanceS3Acc
             Resource: [
                 s3.configBucket.arn,
                 s3.datasetsBucket.arn,
+                s3.inputFilesBucket.arn,
                 s3.publicBucket.arn,
                 s3.resultsBucket.arn,
                 s3.tempBucket.arn,
@@ -63,6 +65,7 @@ const servicesInstanceS3AccessPolicy = new aws.iam.Policy("ServicesInstanceS3Acc
             ],
             Resource: [
                 s3BucketObjectsArn(s3.datasetsBucket),
+                s3BucketObjectsArn(s3.inputFilesBucket),
                 s3BucketObjectsArn(s3.publicBucket),
                 s3BucketObjectsArn(s3.resultsBucket),
                 s3BucketObjectsArn(s3.tempBucket),
@@ -111,6 +114,7 @@ const workerInstanceS3AccessPolicy = new aws.iam.Policy("WorkerInstanceS3Access"
                 s3BucketObjectsArn(s3.configBucket),
                 s3BucketObjectsArn(s3.resultsBucket),
                 s3BucketObjectsArn(s3.datasetsBucket),
+                s3BucketObjectsArn(s3.inputFilesBucket),
             ],
         }, {
             Effect: "Allow",
@@ -118,6 +122,7 @@ const workerInstanceS3AccessPolicy = new aws.iam.Policy("WorkerInstanceS3Access"
             Resource: [
                 s3.configBucket.arn,
                 s3.datasetsBucket.arn,
+                s3.inputFilesBucket.arn
             ],
         }, {
             Effect: "Allow",

@@ -10,6 +10,16 @@ interface AMIConfig {
     }
 }
 
+interface SAMLIdPConfig {
+    domain: string,
+    metadataUrl?: string,
+    metadata?: {
+        entityID: string,
+        ssoUrl: string,
+        certificate: string,
+    }
+}
+
 interface AuthConfig {
     allowedDomains?: string[],
     builtin: {
@@ -19,10 +29,7 @@ interface AuthConfig {
         clientID?: string,
         clientSecret?: pulumi.Output<string>,
     },
-    saml?: {
-        domain: string,
-        metadataUrl: string,
-    },
+    saml?: SAMLIdPConfig,
     systemAPIKey?: pulumi.Output<string>,
 }
 
@@ -51,6 +58,8 @@ interface ElbAccountIdConfig {
 
 interface FeaturesConfig {
     capsuleCache: boolean,
+    disablePackageSuggestions: boolean,
+    enableIntercom: boolean,
     onboarding: string,
     useRInstallPackages: boolean,
 }
@@ -84,11 +93,6 @@ interface WorkerConfig {
     autoScalingIdleTimeout: number,
     instanceType: string,
     maintainIdleWorker: boolean,
-    reservedMemory: number,
-    slotConfig: {
-        cpu: number,
-        memory: number,
-    },
     useInstanceStore?: boolean,
 }
 
@@ -138,6 +142,7 @@ export const auth: AuthConfig = {
         clientID: config.get("auth.google.clientID"),
         clientSecret: config.getSecret("auth.google.clientSecret"),
     },
+    saml: config.getObject("auth.saml"),
     systemAPIKey: config.getSecret("auth.systemAPIKey"),
 }
 
@@ -145,24 +150,12 @@ if (config.get("auth.allowedDomains")) {
     auth.allowedDomains = config.require("auth.allowedDomains").split(",").map((x) => x.trim())
 }
 
-if (config.get("auth.saml.domain")) {
-    auth.saml = {
-        domain: config.require("auth.saml.domain"),
-        metadataUrl: config.require("auth.saml.metadataUrl"),
-    }
-}
-
 export const workers: WorkerConfig = {
     autoScalingMaxSize: config.getNumber("workers.autoScalingMaxSize") || 3,
     autoScalingMinSize: config.getNumber("workers.autoScalingMinSize") || 0,
     autoScalingIdleTimeout: config.getNumber("workers.autoScalingIdleTimeout") || 5,
-    instanceType: config.get("workers.instanceType") || "r5d.4xlarge",
+    instanceType: config.get("workers.instanceType", { pattern: RegExp(/^r5d\..*$/) } ) || "r5d.4xlarge",
     maintainIdleWorker: config.getBoolean("workers.maintainIdleWorker") || false,
-    reservedMemory: config.getNumber("workers.reservedMemory") || 1073741824,
-    slotConfig: {
-        cpu: config.getNumber("workers.slotConfig.cpu") || 1.0,
-        memory: config.getNumber("workers.slotConfig.memory") || 8129604096,
-    },
     useInstanceStore: config.getBoolean("workers.useInstanceStore"),
 }
 
@@ -170,12 +163,12 @@ export const features = config.getObject<FeaturesConfig>("features")
 
 export const ami: AMIConfig = {
     services: {
-        "us-east-1": config.get("services.ami") || "ami-06bddc346d4f8a069",
-        "eu-central-1": config.get("services.ami") || "ami-04abe8596d8d01331",
+        "us-east-1": config.get("services.ami") || "ami-00d4f2d22d848b5ec",
+        "eu-central-1": config.get("services.ami") || "ami-05bc4db07f902073e",
     },
     worker: {
-        "us-east-1": config.get("workers.ami") || "ami-0c50a8320c2468921",
-        "eu-central-1": config.get("workers.ami") || "ami-0d485021b96e5487d",
+        "us-east-1": config.get("workers.ami") || "ami-0aaee480dd859e086",
+        "eu-central-1": config.get("workers.ami") || "ami-0aed46ce95e28ddb3",
     },
 }
 

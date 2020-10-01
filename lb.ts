@@ -123,8 +123,6 @@ const listener = new aws.lb.Listener("external-https", {
     sslPolicy: "ELBSecurityPolicy-TLS-1-2-2017-01",
 })
 
-let priority = 1
-
 new aws.lb.ListenerRule("file-proxy", {
     actions: [{
         type: "forward",
@@ -136,7 +134,7 @@ new aws.lb.ListenerRule("file-proxy", {
         },
     }],
     listenerArn: listener.arn,
-    priority: priority++,
+    priority: 100,
 }, {
     deleteBeforeReplace: true,
 })
@@ -152,7 +150,7 @@ new aws.lb.ListenerRule("file-proxy-auth-callback", {
         },
     }],
     listenerArn: listener.arn,
-    priority: priority++,
+    priority: 200,
 }, {
     deleteBeforeReplace: true,
 })
@@ -168,7 +166,7 @@ new aws.lb.ListenerRule("file-proxy-datasets", {
         },
     }],
     listenerArn: listener.arn,
-    priority: priority++,
+    priority: 300,
 }, {
     deleteBeforeReplace: true,
 })
@@ -184,7 +182,39 @@ new aws.lb.ListenerRule("file-proxy-datasets-auth-callback", {
         },
     }],
     listenerArn: listener.arn,
-    priority: priority++,
+    priority: 400,
+}, {
+    deleteBeforeReplace: true,
+})
+
+new aws.lb.ListenerRule("file-proxy-input", {
+    actions: [{
+        type: "forward",
+        targetGroupArn: fileProxyTargetGroup.arn,
+    }],
+    conditions: [{
+        pathPattern: {
+            values: ["/input/*"],
+        },
+    }],
+    listenerArn: listener.arn,
+    priority: 500,
+}, {
+    deleteBeforeReplace: true,
+})
+
+new aws.lb.ListenerRule("file-proxy-input-auth-callback", {
+    actions: [{
+        type: "forward",
+        targetGroupArn: fileProxyTargetGroup.arn,
+    }],
+    conditions: [{
+        pathPattern: {
+            values: ["/input_auth_callback"],
+        },
+    }],
+    listenerArn: listener.arn,
+    priority: 600,
 }, {
     deleteBeforeReplace: true,
 })
@@ -200,7 +230,7 @@ new aws.lb.ListenerRule("git-proxy", {
         },
     }],
     listenerArn: listener.arn,
-    priority: priority++,
+    priority: 700,
 }, {
     deleteBeforeReplace: true,
 })
@@ -216,7 +246,7 @@ new aws.lb.ListenerRule("cw-proxy", {
         },
     }],
     listenerArn: listener.arn,
-    priority: priority++,
+    priority: 800,
 }, {
     deleteBeforeReplace: true,
 })
@@ -232,7 +262,7 @@ new aws.lb.ListenerRule("gw", {
         },
     }],
     listenerArn: listener.arn,
-    priority: priority++,
+    priority: 900,
 }, {
     deleteBeforeReplace: true,
 })
@@ -248,7 +278,7 @@ new aws.lb.ListenerRule("s3-proxy", {
         },
     }],
     listenerArn: listener.arn,
-    priority: priority++,
+    priority: 1000,
 }, {
     deleteBeforeReplace: true,
 })

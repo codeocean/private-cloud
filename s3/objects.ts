@@ -5,6 +5,7 @@ import * as config from "../config"
 import * as dedicatedMachines from "../dedicated-machines"
 import * as keys from "../keys"
 import * as secrets from "../secrets"
+import * as slots from "../slots"
 
 import * as s3 from "."
 
@@ -17,6 +18,7 @@ const context = pulumi.all([
     accountId,
     s3.assetsBucket.bucket,
     s3.datasetsBucket.bucket,
+    s3.inputFilesBucket.bucket,
     s3.publicBucket.bucket,
     s3.resultsBucket.bucket,
     s3.tempBucket.bucket,
@@ -41,6 +43,7 @@ const context = pulumi.all([
     accountId_,
     assetsBucketName,
     datasetsBucketName,
+    inputfilesBucketName,
     publicBucketName,
     resultsBucketName,
     tempBucketName,
@@ -69,6 +72,7 @@ const context = pulumi.all([
         buckets: {
             assets: assetsBucketName,
             datasets: datasetsBucketName,
+            inputfiles: inputfilesBucketName,
             public: publicBucketName,
             results: resultsBucketName,
             temp: tempBucketName,
@@ -112,7 +116,8 @@ const context = pulumi.all([
                 privateKey: appPrivateKey,
                 publicCert: samlCert,
             }
-        }
+        },
+        slotsConfig: slots.config,
     }
 })
 

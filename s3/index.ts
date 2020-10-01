@@ -54,6 +54,31 @@ export const assetsBucket = new Bucket("assets", {
 
 export const configBucket = new Bucket("config", { accessLogsBucket })
 
+export const inputFilesBucket = new Bucket("inputfiles", {
+    accessLogsBucket,
+    extraArgs: {
+        versioning: {
+            enabled: true,
+        },
+        lifecycleRules: [
+            {
+                enabled: true,
+                id: "Move old versions to Glacier",
+                noncurrentVersionTransitions: [
+                    {
+                        days: 30,
+                        storageClass: "GLACIER",
+                    },
+                ],
+                abortIncompleteMultipartUploadDays: 7,
+            },
+        ],
+        forceDestroy: true,
+    },
+}, {
+    protect: true,
+})
+
 export const datasetsBucket = new Bucket("datasets", {
     accessLogsBucket,
     extraArgs: {

@@ -52,8 +52,8 @@
 		"DockerImage": "524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/tools:2020-06-28-5077a92"
 	},
 	"Slot": {
-		"CPU": 1.0,
-		"Memory": 8129604096
+		"CPU": {{slotsConfig.slot.cpu}},
+		"Memory": {{slotsConfig.slot.memory}}
 	},
 	"GiteaProxyURL": "https://{{config.domains.git}}",
 	"Conversions": {

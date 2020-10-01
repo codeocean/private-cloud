@@ -4,6 +4,7 @@ import * as aws from "@pulumi/aws"
 import * as pulumi from "@pulumi/pulumi"
 import * as handlebars from "handlebars"
 
+import * as cloudwatch from "./cloudwatch"
 import * as config from "./config"
 import * as ebs from "./ebs"
 import * as efs from "./efs"
@@ -58,6 +59,8 @@ export const servicesInstance = new aws.ec2.Instance("services", {
         efs.capsuleCache,
         efs.datasets,
         s3.configBucket,
+        cloudwatch.instancesLogGroup,
+        cloudwatch.servicesLogGroup,
     ],
     // XXX Terraform & Pulumi have an issue with mixing ebsBlockDevices and VolumeAttachment which will
     // cause them to recreate the instance on each update, which we sadly do here. So we ignore
