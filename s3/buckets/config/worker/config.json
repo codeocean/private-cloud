@@ -32,7 +32,12 @@
 		"InputBucket": "{{buckets.inputfiles}}"
 	},
 	"Redis": {
+		{{#if config.services.aws.redis.enabled}}
+		"Address": "{{services.redis.address}}",
+		"TLS": true,
+		{{else}}
 		"Address": "redis.svc",
+		{{/if}}
 		"Port": 6379,
 		"Password": "{{secrets.redis.password}}",
 		"Database": 0
@@ -45,6 +50,7 @@
 		"AnalyticsServiceHost": "http://wapi.svc:8201",
 		"CollaborationServiceHost": "http://wapi.svc:8201",
 		"ComputationServiceHost": "http://wapi.svc:8201",
+		"CredMapServiceHost": "http://wapi.svc:8201",
 		"CWProxyServiceHost": "http://wapi.svc:8201",
 		"DatasetServiceHost": "http://wapi.svc:8201",
 		"DockerImageServiceHost": "http://wapi.svc:8201",

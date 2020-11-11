@@ -3,11 +3,14 @@
 
 import * as random from "@pulumi/random"
 
-function randomPassword(name: string): random.RandomPassword {
-    return new random.RandomPassword(name, {
+function randomPassword(name: string, args?: random.RandomPasswordArgs): random.RandomPassword {
+
+    args = args || {
         length: 14,
         special: false,
-    }, {
+    }
+
+    return new random.RandomPassword(name, args, {
         additionalSecretOutputs: [
             "result",
         ],
@@ -31,5 +34,9 @@ export const postgres = {
 }
 
 export const redis = {
-    passsword: randomPassword("redis-password"),
+    passsword: randomPassword("redis-password", {
+        length: 128,
+        special: true,
+        overrideSpecial: "!&#$^<>-",
+    })
 }

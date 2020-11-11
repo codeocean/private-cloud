@@ -74,13 +74,15 @@ const servicesZone = new aws.route53.Zone("services", {
     },
 })
 
-new aws.route53.Record("redis", {
-    name: "redis.svc",
-    records: [ec2.servicesInstance.privateIp],
-    ttl: 60,
-    type: aws.route53.RecordTypes.A,
-    zoneId: servicesZone.zoneId,
-})
+if (!config.services.aws.redis.enabled) {
+    new aws.route53.Record("redis", {
+        name: "redis.svc",
+        records: [ec2.servicesInstance.privateIp],
+        ttl: 60,
+        type: aws.route53.RecordTypes.A,
+        zoneId: servicesZone.zoneId,
+    })
+}
 
 new aws.route53.Record("wapi", {
     name: "wapi.svc",

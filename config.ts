@@ -70,14 +70,23 @@ interface GitProvidersConfig {
     },
 }
 
+interface RedisConfig {
+    enabled?: boolean,
+    instanceType?: string,
+    multiAZ?: boolean
+}
+
 interface ServicesConfig {
     registryHost: string,
+    aws: {
+        redis: RedisConfig
+    },
     segment: {
         backend: {
-            apiKey: string | undefined,
+            apiKey?: pulumi.Output<string>,
         },
         frontend: {
-            apiKey: string | undefined,
+            apiKey?: pulumi.Output<string>,
         },
     }
 }
@@ -96,7 +105,24 @@ interface WorkerConfig {
     useInstanceStore?: boolean,
 }
 
-const config = new pulumi.Config()
+/**
+ * Config extends `pulumi.Config` with extra functionality.
+ */
+class Config extends pulumi.Config {
+    /**
+     * getObjectWithDefaults extends `pulumi.Config.getObject` to assign default values
+     * to the loaded config object.
+     *
+     * @param key The key to lookup.
+     * @param defaults The default values.
+     */
+    getObjectWithDefaults<T>(key: string, defaults: T): T {
+        const o = this.getObject<T>(key)
+        return Object.assign(defaults, o)
+    }
+}
+
+const config = new Config()
 const awsConfig = new pulumi.Config("aws")
 export const project = pulumi.getProject()
 export const stackname = pulumi.getStack()
@@ -124,12 +150,17 @@ export const gitProviders = config.getObject<GitProvidersConfig>("gitProviders")
 
 export const services: ServicesConfig = {
     registryHost: deployment.singleInstance ? "localhost:5000" : `registry.${config.require("domains.app")}`,
+    aws: {
+        redis: config.getObjectWithDefaults<RedisConfig>("aws.redis", {
+            instanceType: "cache.t3.micro",
+        }),
+    },
     segment: {
         backend: {
-            apiKey: config.get("segment.backend.apiKey"),
+            apiKey: config.getSecret("segment.backend.apiKey"),
         },
         frontend: {
-            apiKey: config.get("segment.frontend.apiKey"),
+            apiKey: config.getSecret("segment.frontend.apiKey"),
         },
     },
 }
@@ -153,7 +184,7 @@ if (config.get("auth.allowedDomains")) {
 export const workers: WorkerConfig = {
     autoScalingMaxSize: config.getNumber("workers.autoScalingMaxSize") || 3,
     autoScalingMinSize: config.getNumber("workers.autoScalingMinSize") || 0,
-    autoScalingIdleTimeout: config.getNumber("workers.autoScalingIdleTimeout") || 5,
+    autoScalingIdleTimeout: config.getNumber("workers.autoScalingIdleTimeout") || 60,
     instanceType: config.get("workers.instanceType", { pattern: RegExp(/^r5d\..*$/) } ) || "r5d.4xlarge",
     maintainIdleWorker: config.getBoolean("workers.maintainIdleWorker") || false,
     useInstanceStore: config.getBoolean("workers.useInstanceStore"),
@@ -163,12 +194,12 @@ export const features = config.getObject<FeaturesConfig>("features")
 
 export const ami: AMIConfig = {
     services: {
-        "us-east-1": config.get("services.ami") || "ami-00d4f2d22d848b5ec",
-        "eu-central-1": config.get("services.ami") || "ami-05bc4db07f902073e",
+        "us-east-1": config.get("services.ami") || "ami-004863b83de262710",
+        "eu-central-1": config.get("services.ami") || "ami-0e9b30df5f78f15e0",
     },
     worker: {
-        "us-east-1": config.get("workers.ami") || "ami-0aaee480dd859e086",
-        "eu-central-1": config.get("workers.ami") || "ami-0aed46ce95e28ddb3",
+        "us-east-1": config.get("workers.ami") || "ami-096aa408a0a112f0c",
+        "eu-central-1": config.get("workers.ami") || "ami-0f37377a58be539ef",
     },
 }
 

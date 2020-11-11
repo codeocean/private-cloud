@@ -18,7 +18,12 @@
 		"Bucket": "{{buckets.results}}"
 	},
 	"Redis": {
+		{{#if config.services.aws.redis.enabled}}
+		"Address": "{{services.redis.address}}",
+		"TLS": true,
+		{{else}}
 		"Address": "redis",
+		{{/if}}
 		"Port": 6379,
 		"Password": "{{secrets.redis.password}}",
 		"Database": 0

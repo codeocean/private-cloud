@@ -8,6 +8,7 @@ import "./route53"
 import "./s3"
 import "./s3/objects"
 import "./sns"
+import "./redis"
 
 import * as asg from "./asg"
 import * as ebs from "./ebs"

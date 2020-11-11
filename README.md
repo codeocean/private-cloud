@@ -117,8 +117,8 @@ Wait until the DNS change propagates and run the deployment again with `pulumi u
     Or, an R base image:
     ```
     Name: R
-    Version: 3.6.1, RStudio 1.2.5019
-    Source: codeocean/r-studio:1.2.5019-r3.6.1-ubuntu18.04
+    Version: 3.6.3, RStudio 1.2.5019
+    Source: codeocean/r-studio:1.2.5019-r3.6.3-ubuntu18.04
     Language: R
     Machine Type: 0
     Description: R is a language and environment for statistical computing and graphics. RStudio is an integrated development environment for R.

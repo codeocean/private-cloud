@@ -4,6 +4,7 @@ import * as pulumi from "@pulumi/pulumi"
 import * as config from "../config"
 import * as dedicatedMachines from "../dedicated-machines"
 import * as keys from "../keys"
+import * as redis from "../redis"
 import * as secrets from "../secrets"
 import * as slots from "../slots"
 
@@ -28,6 +29,8 @@ const context = pulumi.all([
     config.auth.builtin.reCaptchaApiKey,
     config.auth.google.clientSecret,
     config.auth.systemAPIKey,
+    config.services.segment.backend.apiKey,
+    config.services.segment.frontend.apiKey,
     secrets.couchdb.adminPassword.result,
     secrets.gitea.adminPassword.result,
     secrets.gitea.commonPassword.result,
@@ -39,6 +42,7 @@ const context = pulumi.all([
     keys.appKey.privateKeyPem,
     keys.appKey.publicKeyPem,
     keys.samlCert.certPem,
+    redis.replicationGroup ? redis.replicationGroup!.primaryEndpointAddress : undefined,
 ]).apply(([
     accountId_,
     assetsBucketName,
@@ -53,6 +57,8 @@ const context = pulumi.all([
     reCaptchaApiKey,
     googleClientSecret,
     systemAPIKey,
+    segmentBackendApiKey,
+    segmentFrontendApiKey,
     couchdbAdminPassword,
     giteaAdminPassword,
     giteaCommonPassword,
@@ -64,6 +70,7 @@ const context = pulumi.all([
     appPrivateKey,
     appPublicKey,
     samlCert,
+    redisAddress,
 ]) => {
     config.aws.accountId = accountId_
 
@@ -103,8 +110,17 @@ const context = pulumi.all([
             postgres: {
                 password: postgresPassword,
             },
+            segment: {
+                backendApiKey: segmentBackendApiKey,
+                frontendApiKey: segmentFrontendApiKey,
+            },
             redis: {
                 password: redisPassword,
+            },
+        },
+        services: {
+            redis: {
+                address: redisAddress,
             },
         },
         keys: {

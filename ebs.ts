@@ -14,5 +14,6 @@ export const dataVolume = new aws.ebs.Volume("data", {
         deployment: config.deploymentName,
     },
 }, {
+    ignoreChanges: ["size"],
     protect: true,
 })

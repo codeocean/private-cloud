@@ -122,7 +122,12 @@ GitProviders:
     Organization: {{config.gitProviders.github.org}}
   {{/if}}
 Redis:
+  {{#if config.services.aws.redis.enabled}}
+  Address: {{services.redis.address}}:6379
+  TLS: true
+  {{else}}
   Address: redis:6379
+  {{/if}}
   Password: {{secrets.redis.password}}
 Elasticsearch:
   URL: http://es:9200
@@ -135,11 +140,11 @@ WDT:
 Tools:
   DockerImage: 524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/tools:2020-06-28-5077a92
 Segment:
-  {{#if config.services.segment.backend.apiKey}}
-  APIKey: {{config.services.segment.backend.apiKey}}
+  {{#if secrets.segment.backendApiKey}}
+  APIKey: {{secrets.segment.backendApiKey}}
   {{/if}}
-  {{#if config.services.segment.frontend.apiKey}}
-  APIKeyFE: {{config.services.segment.frontend.apiKey}}
+  {{#if secrets.segment.frontendApiKey}}
+  APIKeyFE: {{secrets.segment.frontendApiKey}}
   {{/if}}
   StatInterval: 3600
 InitData:
@@ -296,6 +301,7 @@ Features:
   DisablePackageSuggestions: true
   {{/if}}
   AlwaysGitIgnoreData: true
+  CapsuleCredentials: true
 Datasets:
   CacheTTLDays: 30
 Input:
@@ -315,6 +321,8 @@ Services:
     URL: http://cola:8094
   computation:
     URL: http://comp:8088
+  credmap:
+    URL: http://cred:8117
   cw-proxy:
     URL: http://cw-proxy:8114
   dataset:
@@ -353,6 +361,8 @@ Services:
     URL: http://jrnl:8098
   language:
     URL: http://lang:8083
+  layout:
+    URL: http://layout:8118
   license:
     URL: http://lice:8097
   machine:

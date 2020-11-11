@@ -25,6 +25,9 @@ server {
     # Do not allow embedding into other sites
     add_header X-Frame-Options "SAMEORIGIN" always;
 
+    # Omit referrer header
+    add_header Referrer-Policy "no-referrer";
+
     # No caching by default
     expires -1;
 

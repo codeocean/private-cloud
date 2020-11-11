@@ -49,7 +49,7 @@ export const servicesLogGroup = getLogGroupOpts("services").then(opts => {
     }, opts)
 })
 
-getLogGroupOpts("workers").then(opts => {
+export const workersLogGroup = getLogGroupOpts("workers").then(opts => {
     return new aws.cloudwatch.LogGroup("workers", {
         name: `/codeocean/${config.stackname}/workers`,
         retentionInDays: 30,
@@ -82,19 +82,19 @@ if (!config.workers.maintainIdleWorker) {
     })
 
     // Scale in whenever a worker is idle
-    new aws.cloudwatch.MetricAlarm("workers-available-slots-high", {
+    new aws.cloudwatch.MetricAlarm("workers-slot-utilization-low", {
         alarmActions: [asg.workersAvailableSlotsScaleInPolicy.arn],
-        alarmDescription: "Workers available slots are high",
-        comparisonOperator: "GreaterThanThreshold",
-        datapointsToAlarm: config.workers.autoScalingIdleTimeout,
+        alarmDescription: "Workers slot utilization is low",
+        comparisonOperator: "LessThanOrEqualToThreshold",
+        datapointsToAlarm: config.workers.autoScalingIdleTimeout * 6,
         dimensions: {
             AutoScalingGroupName: asg.workersAsg.name,
         },
-        evaluationPeriods: config.workers.autoScalingIdleTimeout,
-        metricName: "TotalSlots",
+        evaluationPeriods: config.workers.autoScalingIdleTimeout * 6,
+        metricName: "SlotsUtilization",
         namespace: "CodeOcean",
-        period: 60,
-        statistic: "Average",
+        period: 10,
+        statistic: "Minimum",
         threshold: 0,
         tags: {
             deployment: config.deploymentName,
@@ -264,55 +264,54 @@ new aws.cloudwatch.MetricAlarm("services-unhealthy-host", {
     },
 })
 
-// Elevated error rate
-new aws.cloudwatch.MetricAlarm("services-elevated-error-rate", {
-    alarmActions: [sns.alarmsTopic],
-    alarmDescription: "Spike detected in 5xx errors returned by the services machine",
-    comparisonOperator: "GreaterThanOrEqualToThreshold",
-    evaluationPeriods: 2,
-    okActions: [sns.alarmsTopic],
-    threshold: 10,
+// Internal Server Errors
+new aws.cloudwatch.LogMetricFilter("services-500", {
+    logGroupName: pulumi.output(servicesLogGroup).apply(v => v.name),
+    pattern: "[date, time, service, level, source=GIN, status=500, ...]",
+    metricTransformation: {
+        namespace: "CodeOcean",
+        value: "1",
+        name: "Services_HTTP_500_LogCount"
+    }
+})
 
+new aws.cloudwatch.LogMetricFilter("workers-500", {
+    logGroupName: pulumi.output(servicesLogGroup).apply(v => v.name),
+    pattern: "[date, time, service, level, source=GIN, status=500, ...]",
+    metricTransformation: {
+        namespace: "CodeOcean",
+        value: "1",
+        name: "Workers_HTTP_500_LogCount"
+    }
+})
+
+new aws.cloudwatch.MetricAlarm("internal-server-errors", {
+    alarmActions: [sns.alarmsTopic],
+    alarmDescription: "Internal server errors returned by CodeOcean services",
+    comparisonOperator: "GreaterThanThreshold",
+    evaluationPeriods: 1,
+    okActions: [sns.alarmsTopic],
+    threshold: 0,
     metricQueries: [{
-        expression: "(m2+m3)/m1*100",
+        expression: "(m1+m2)",
         id: "e1",
-        label: "5xx Error Rate",
+        label: "500 Error Count",
         returnData: true,
     }, {
         id: "m1",
         metric: {
-            dimensions: {
-                LoadBalancer: lb.externalAlb.arnSuffix,
-            },
-            metricName: "RequestCount",
-            namespace: "AWS/ApplicationELB",
-            period: 120,
+            metricName: "Services_HTTP_500_LogCount",
+            namespace: "CodeOcean",
+            period: 60,
             stat: "Sum",
-            unit: "Count",
         },
     }, {
         id: "m2",
         metric: {
-            dimensions: {
-                LoadBalancer: lb.externalAlb.arnSuffix,
-            },
-            metricName: "HTTPCode_ELB_5XX_Count",
-            namespace: "AWS/ApplicationELB",
-            period: 120,
+            metricName: "Workers_HTTP_500_LogCount",
+            namespace: "CodeOcean",
+            period: 60,
             stat: "Sum",
-            unit: "Count",
-        },
-    }, {
-        id: "m3",
-        metric: {
-            dimensions: {
-                LoadBalancer: lb.externalAlb.arnSuffix,
-            },
-            metricName: "HTTPCode_Target_5XX_Count",
-            namespace: "AWS/ApplicationELB",
-            period: 120,
-            stat: "Sum",
-            unit: "Count",
         },
     }],
     tags: {

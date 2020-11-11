@@ -1,12 +1,23 @@
 CHANGELOG
 =========
 
+## 0.8.0 (2020-11-11)
+
+- New feature: Secret Management
+- Ability to delete data assets (by the owner and when not in use)
+- Interface tab name change to "App Panel",
+- App Panel is no longer in "Beta" - label removed
+- New viewers added to support XLS/ XLSM file formats
+- Option to use managed AWS Elasticache for Redis instead of system's built-in Redis server
+- Fixed issue with EFS volume mounting on system initialization
+- Improve CloudWatch alarm for system 5xx errors
+
 ## 0.7.0 (2020-10-01)
 
 - Interface tab: support for file upload as part of the interface tab run
 - Published capsules can now be run directly from the explore page without a need to
   duplicate them first
-- introduced an easy way to discover capsules you run directly from the explore page,
+- Introduced an easy way to discover capsules you run directly from the explore page,
   with the addition of a new section in the capsule page called: "Run by me"
 - Fix for downloading files from non- `us-east-1` AWS regions
 - Fixed issue with long filenames in datasets/ capture results detail pages:

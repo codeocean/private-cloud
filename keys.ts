@@ -24,7 +24,7 @@ export const samlCert = new tls.SelfSignedCert("saml-cert", {
     subjects: [{
         commonName: config.domains.app,
     }],
-    validityPeriodHours: 87600, // 10 years
+    validityPeriodHours: 43800, // 5 years
 }, {
     additionalSecretOutputs: [
         "privateKeyPem",

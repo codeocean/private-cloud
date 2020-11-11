@@ -147,6 +147,34 @@ export const sgEfs = new aws.ec2.SecurityGroup("efs", {
     },
 })
 
+export let sgRedis : aws.ec2.SecurityGroup | undefined
+
+if (config.services.aws.redis.enabled) {
+    sgRedis = new aws.ec2.SecurityGroup("redis", {
+        vpcId: vpc.id,
+        ingress: [{
+            protocol: "tcp",
+            fromPort: 6379,
+            toPort: 6379,
+            securityGroups: [
+                sgServices.id, 
+                sgWorkers.id
+            ],
+            description: "Access to redis service from services machine and workers",
+        }]
+    })
+} else {
+    new aws.ec2.SecurityGroupRule("redis-from-workers", {	
+        type: "ingress",	
+        protocol: "tcp",	
+        fromPort: 6379,	
+        toPort: 6379,	
+        securityGroupId: sgServices.id,	
+        sourceSecurityGroupId: sgWorkers.id,	
+        description: "redis from workers",	
+    })
+}
+
 new aws.ec2.SecurityGroupRule("wapi-from-workers", {
     type: "ingress",
     protocol: "tcp",
@@ -155,16 +183,6 @@ new aws.ec2.SecurityGroupRule("wapi-from-workers", {
     securityGroupId: sgServices.id,
     sourceSecurityGroupId: sgWorkers.id,
     description: "wapi from workers",
-})
-
-new aws.ec2.SecurityGroupRule("redis-from-workers", {
-    type: "ingress",
-    protocol: "tcp",
-    fromPort: 6379,
-    toPort: 6379,
-    securityGroupId: sgServices.id,
-    sourceSecurityGroupId: sgWorkers.id,
-    description: "redis from workers",
 })
 
 new aws.ec2.SecurityGroupRule("registry-from-workers", {

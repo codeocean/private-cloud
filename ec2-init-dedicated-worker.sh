@@ -21,11 +21,11 @@ mount /worker
 {{#if capsuleCacheEfsId}}
 mkdir /capsule-cache
 echo "{{capsuleCacheEfsId}}:/ /capsule-cache efs _netdev,tls,iam 0 0" >> /etc/fstab
-mount /capsule-cache
+until mount /capsule-cache; do sleep 1; done
 {{/if}}
 mkdir /datasets
 echo "{{datasetsEfsId}}:/ /datasets efs _netdev,tls,iam 0 0" >> /etc/fstab
-mount /datasets
+until mount /datasets; do sleep 1; done
 
 # Set the config bucket configuration
 echo 'CONFIG_BUCKET="{{configBucketName}}"' >> /etc/default/codeocean
