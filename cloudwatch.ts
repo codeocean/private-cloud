@@ -13,7 +13,7 @@ import * as lb from "./lb"
 import * as sns from "./sns"
 
 const getLogGroupNames = new AWS.CloudWatchLogs().describeLogGroups({
-    logGroupNamePrefix: `/codeocean/${config.stackname}/`
+    logGroupNamePrefix: `/codeocean/${config.stackname}/`,
 }).promise().then(v => v.logGroups?.map(v => v.logGroupName))
 
 async function getLogGroupOpts(logGroupSuffix: string): Promise<pulumi.CustomResourceOptions | undefined> {
@@ -68,7 +68,7 @@ if (!config.workers.maintainIdleWorker) {
         datapointsToAlarm: 1,
         dimensions: {
             "InstanceID": ec2.servicesInstance.id,
-            "MachineType": "0"
+            "MachineType": "0",
         },
         evaluationPeriods: 1,
         metricName: "OverloadStatus",
@@ -78,7 +78,7 @@ if (!config.workers.maintainIdleWorker) {
         tags: {
             deployment: config.deploymentName,
         },
-        threshold: 1, 
+        threshold: 1,
     })
 
     // Scale in whenever a worker is idle
@@ -86,20 +86,20 @@ if (!config.workers.maintainIdleWorker) {
         alarmActions: [asg.workersAvailableSlotsScaleInPolicy.arn],
         alarmDescription: "Workers slot utilization is low",
         comparisonOperator: "LessThanOrEqualToThreshold",
-        datapointsToAlarm: config.workers.autoScalingIdleTimeout * 6,
+        datapointsToAlarm: config.workers.autoScalingIdleTimeout,
         dimensions: {
             AutoScalingGroupName: asg.workersAsg.name,
         },
-        evaluationPeriods: config.workers.autoScalingIdleTimeout * 6,
+        evaluationPeriods: config.workers.autoScalingIdleTimeout,
         metricName: "SlotsUtilization",
         namespace: "CodeOcean",
-        period: 10,
+        period: 60,
         statistic: "Minimum",
         threshold: 0,
         tags: {
             deployment: config.deploymentName,
         },
-        treatMissingData: "notBreaching"
+        treatMissingData: "notBreaching",
     })
 } else {
     // Scale out so we have machine with the maximum amount of slots we make a available for a single run
@@ -271,8 +271,8 @@ new aws.cloudwatch.LogMetricFilter("services-500", {
     metricTransformation: {
         namespace: "CodeOcean",
         value: "1",
-        name: "Services_HTTP_500_LogCount"
-    }
+        name: "Services_HTTP_500_LogCount",
+    },
 })
 
 new aws.cloudwatch.LogMetricFilter("workers-500", {
@@ -281,8 +281,8 @@ new aws.cloudwatch.LogMetricFilter("workers-500", {
     metricTransformation: {
         namespace: "CodeOcean",
         value: "1",
-        name: "Workers_HTTP_500_LogCount"
-    }
+        name: "Workers_HTTP_500_LogCount",
+    },
 })
 
 new aws.cloudwatch.MetricAlarm("internal-server-errors", {
