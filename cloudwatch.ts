@@ -276,7 +276,7 @@ new aws.cloudwatch.LogMetricFilter("services-500", {
 })
 
 new aws.cloudwatch.LogMetricFilter("workers-500", {
-    logGroupName: pulumi.output(servicesLogGroup).apply(v => v.name),
+    logGroupName: pulumi.output(workersLogGroup).apply(v => v.name),
     pattern: "[date, time, service, level, source=GIN, status=500, ...]",
     metricTransformation: {
         namespace: "CodeOcean",

@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.8.2 (2020-11-18)
+
+- Fix CloudWatch logs filter for worker internal error metric
+
 ## 0.8.1 (2020-11-11)
 
 - Fix CloudWatch alarm for workers scale in
