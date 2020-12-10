@@ -56,9 +56,8 @@
 	"Tools": {
 		"DockerImage": "524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/tools:2020-06-28-5077a92"
 	},
-	"Slot": {
-		"CPU": {{slotsConfig.slot.cpu}},
-		"Memory": {{slotsConfig.slot.memory}}
+	"S3fS": {
+		"DockerImage": "524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/s3fs:2020-10-22-4d36418"
 	},
 	"GiteaProxyURL": "https://{{config.domains.git}}",
 	"Conversions": {

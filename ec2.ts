@@ -27,6 +27,10 @@ export const servicesInstance = new aws.ec2.Instance("services", {
     metadataOptions: {
         httpEndpoint: "enabled",
         httpPutResponseHopLimit: 2,
+        httpTokens: "required",
+    },
+    rootBlockDevice: {
+        encrypted: true,
     },
     subnetId: pulumi.output(vpc.vpc.privateSubnetIds).apply(subnets => subnets[0]),
     tags: {
@@ -74,7 +78,7 @@ export const servicesInstance = new aws.ec2.Instance("services", {
     ignoreChanges: ["ebsBlockDevices"],
 })
 
-new aws.ec2.VolumeAttachment("services-data-volume", {
+export const servicesDataVolume = new aws.ec2.VolumeAttachment("services-data-volume", {
     instanceId: servicesInstance.id,
     volumeId: ebs.dataVolume.id,
     deviceName: "/dev/sde",

@@ -1,3 +1,6 @@
+Version:
+  Version: "{{config.version.version}}"
+  Label: "{{config.version.label}}"
 General:
   APIBasePath: /api
   BaseURL: https://{{config.domains.app}}
@@ -128,9 +131,15 @@ Redis:
   {{else}}
   Address: redis:6379
   {{/if}}
-  Password: {{secrets.redis.password}}
+  Password: "{{secrets.redis.password}}"
 Elasticsearch:
+  {{#if config.services.aws.elasticsearch.enabled}}
+  URL: https://{{services.elasticsearch.address}}
+  AWSV4Signing: true
+  DisableSniffing: true
+  {{else}}
   URL: http://es:9200
+  {{/if}}
 WDT:
   DockerImage: 524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/wdt:2019-02-14-b8f978f
   TempDir: wdt_temp
@@ -170,11 +179,11 @@ Resources:
   MachineTypes:
     0:
       Slot:
-        CPU: {{slotsConfig.slot.cpu}}
-        Memory: {{slotsConfig.slot.memory}}
-      DefaultClass: {{slotsConfig.defaultClass}}
+        CPU: {{slotsConfig.general.slot.cpu}}
+        Memory: {{slotsConfig.general.slot.memory}}
+      DefaultClass: {{slotsConfig.general.defaultClass}}
       Classes:
-        {{#each slotsConfig.classes}}
+        {{#each slotsConfig.general.classes}}
         {{this.id}}:
           Name: {{this.name}}
           Description: {{this.description}}
@@ -184,16 +193,18 @@ Resources:
         {{/each}}
     1:
       Slot:
-        CPU: 1.0
-        Memory: 8380219392
-      DefaultClass: small
+        CPU: {{slotsConfig.gpu.slot.cpu}}
+        Memory: {{slotsConfig.gpu.slot.memory}}
+      DefaultClass: {{slotsConfig.gpu.defaultClass}}
       Classes:
-        small:
-          Name: Small
-          Description: 4 cores / 32 GB RAM
-          Order: 1
+        {{#each slotsConfig.gpu.classes}}
+        {{this.id}}:
+          Name: {{this.name}}
+          Description: {{this.description}}
+          Order: {{this.order}}
           Resources:
-            Slots: 4
+            Slots: {{this.resource.slots}}
+        {{/each}}
 DedicatedMachines:
   InstanceTypes:
     - t2.nano
@@ -297,7 +308,7 @@ Features:
   Datasets: true
   CapsuleGUI: true
   RunOnlyCapsules: true
-  {{#if config.features.noPackageSuggestions}}
+  {{#if config.features.disablePackageSuggestions}}
   DisablePackageSuggestions: true
   {{/if}}
   AlwaysGitIgnoreData: true
@@ -348,6 +359,7 @@ Services:
   group:
     URL: http://group:8112
   gw:
+    LocalBind: :8880
     URL: http://gw:8080
   ide:
     URL: http://ide:8109

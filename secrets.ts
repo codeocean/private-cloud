@@ -38,5 +38,5 @@ export const redis = {
         length: 128,
         special: true,
         overrideSpecial: "!&#$^<>-",
-    })
+    }),
 }

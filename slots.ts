@@ -25,6 +25,12 @@ export interface SlotConfig {
     readonly defaultClass: string
     readonly slot: Slot
     readonly workerReservedMemoryMB: number
+    readonly slotsPerWorker: number
+}
+
+export interface SlotsConfig {
+    general: SlotConfig
+    gpu: SlotConfig
 }
 
 const idNamesArray = [
@@ -40,29 +46,22 @@ const idNamesArray = [
     { id: "6xlarge", name: "6x Large", slots: 96 },
 ]
 
-export const config = pulumi.output<SlotConfig>(new AWS.EC2({apiVersion: "2016-11-15"}).describeInstanceTypes({
-    InstanceTypes: [pulumiConfig.workers.instanceType],
-}).promise().then((data) => {
-    if ((!(data.InstanceTypes)) || (data.InstanceTypes!.length == 0)) {
-        throw new pulumi.RunError(`Could not get worker instance type from AWS: ${pulumiConfig.workers.instanceType}`)
-    }
-
-    let instanceType = data.InstanceTypes![0]
-    let slotsPerWorker = instanceType.VCpuInfo!.DefaultVCpus
+function getSlotsFromInfo(instanceTypeInfo: AWS.EC2.InstanceTypeInfo, gpu: Boolean) : SlotConfig {
+    let slotsPerWorker = gpu ? instanceTypeInfo.GpuInfo!.Gpus![0].Count : instanceTypeInfo.VCpuInfo!.DefaultVCpus
     const slot: Slot = {
-        cpu: 1,
-        memory: ((instanceType.MemoryInfo!.SizeInMiB! - workerReservedMemoryMB) / slotsPerWorker!) * 1000 * 1000,
+        cpu: (instanceTypeInfo.VCpuInfo!.DefaultVCpus! / slotsPerWorker!),
+        memory: Math.round(((instanceTypeInfo.MemoryInfo!.SizeInMiB! - workerReservedMemoryMB) / slotsPerWorker!) * 1000 * 1000),
     }
 
     let classes : ResourceClass[] = idNamesArray.filter(v => v.slots <= slotsPerWorker!).map((v, _i) => {
         return {
             id: v.id,
-            description: `${v.slots} cores / ${Math.round(slot.memory / 1000 / 1000 / 1000) * v.slots} GB RAM`,
+            description: `${v.slots * slot.cpu} cores / ${Math.round(slot.memory / 1000 / 1000 / 1000) * v.slots} GB RAM`,
             name: v.name,
             order: _i + 1,
             resource: {
-                slots: v.slots
-            }
+                slots: v.slots,
+            },
         }
     })
 
@@ -70,8 +69,26 @@ export const config = pulumi.output<SlotConfig>(new AWS.EC2({apiVersion: "2016-1
         classes,
         defaultClass: classes[0].id,
         slot,
-        workerReservedMemoryMB: workerReservedMemoryMB
+        workerReservedMemoryMB: workerReservedMemoryMB,
+        slotsPerWorker: slotsPerWorker!,
     }
-}).catch((reason) => {
-    throw new pulumi.RunError(`Could not get worker instance type from AWS: ${reason}`)
+
+}
+
+export const config = pulumi.output<SlotsConfig>(new AWS.EC2({apiVersion: "2016-11-15"}).describeInstanceTypes({
+    InstanceTypes: [
+        pulumiConfig.workers.general.instanceType,
+        pulumiConfig.workers.gpu.instanceType,
+    ],
+}).promise().then((data) => {
+    if (data.InstanceTypes?.length != 2) {
+        throw new pulumi.RunError(`Could not get worker instance type from AWS: ${pulumiConfig.workers.general.instanceType}`)
+    }
+
+    let resources : SlotsConfig = {
+        general: getSlotsFromInfo(data.InstanceTypes.find(v => v.InstanceType == pulumiConfig.workers.general.instanceType)!, false),
+        gpu: getSlotsFromInfo(data.InstanceTypes.find(v => v.InstanceType == pulumiConfig.workers.gpu.instanceType)!, true),
+    }
+
+    return resources
 }))

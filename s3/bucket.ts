@@ -55,101 +55,75 @@ export class Bucket extends aws.s3.Bucket {
         this.name = name
         this.uploadDirectory = path.join(__dirname, "buckets", name)
 
-        let bucketPublicAccessBlock: aws.s3.BucketPublicAccessBlock
+        let bucketPublicAccessBlock = new aws.s3.BucketPublicAccessBlock(`${name}-public-access`, {
+            bucket: this.id,
+            blockPublicAcls: true,
+            blockPublicPolicy: true,
+            ignorePublicAcls: true,
+            restrictPublicBuckets: true,
+        })
 
-        if (args.allowPublicRead || args.allowPublicList) {
-            bucketPublicAccessBlock = new aws.s3.BucketPublicAccessBlock(`${name}-public-access`, {
-                bucket: this.id,
-                blockPublicAcls: true,
-                blockPublicPolicy: false,
-                ignorePublicAcls: true,
-                restrictPublicBuckets: false,
-            })
+        if (args.customPolicy) {
+            return
+        }
 
-            let statements: aws.iam.PolicyStatement[] = []
-            if (args!.allowPublicRead) {
-                statements.push({
-                    Effect: "Allow",
-                    Principal: {
-                        "AWS": "*"
-                    },
-                    Action: "s3:GetObject",
-                    Resource: pulumi.interpolate`arn:aws:s3:::${this.bucket}/*`,
-                })
-            }
-            if (args!.allowPublicList) {
-                statements.push({
-                    Effect: "Allow",
-                    Principal: {
-                        "AWS": "*"
-                    },
-                    Action: "s3:ListBucket",
-                    Resource: pulumi.interpolate`arn:aws:s3:::${this.bucket}`,
-                })
-            }
-
-            new aws.s3.BucketPolicy(name, {
-                bucket: this.bucket,
-                policy: {
-                    Version: "2012-10-17",
-                    Statement: statements,
+        let statements: aws.iam.PolicyStatement[] = []
+        statements.push({
+            Sid: "AllowSSLRequestsOnly",
+            Effect: "Deny",
+            Principal: "*",
+            Action: "s3:*",
+            Resource: [
+                pulumi.interpolate`arn:aws:s3:::${this.bucket}`,
+                pulumi.interpolate`arn:aws:s3:::${this.bucket}/*`,
+            ],
+            Condition: {
+                Bool: {
+                    "aws:SecureTransport": "false",
                 },
-            }, {
-                dependsOn: bucketPublicAccessBlock,
+            },
+        })
+
+        if (args.allowVpcRead) {
+            statements.push({
+                Effect: "Allow",
+                Principal: {
+                    "AWS": "*",
+                },
+                Action: "s3:GetObject",
+                Resource: pulumi.interpolate`arn:aws:s3:::${this.bucket}/*`,
+                Condition: {
+                    "StringEquals": {
+                        "aws:sourceVpc": vpc.vpc.id,
+                    },
+                },
             })
-        } else {
-            bucketPublicAccessBlock = new aws.s3.BucketPublicAccessBlock(`${name}-public-access`, {
-                bucket: this.id,
-                blockPublicAcls: true,
-                blockPublicPolicy: true,
-                ignorePublicAcls: true,
-                restrictPublicBuckets: true,
+        }
+        if (args.allowVpcList) {
+            statements.push({
+                Effect: "Allow",
+                Principal: {
+                    "AWS": "*",
+                },
+                Action: "s3:ListBucket",
+                Resource: pulumi.interpolate`arn:aws:s3:::${this.bucket}`,
+                Condition: {
+                    "StringEquals": {
+                        "aws:sourceVpc": vpc.vpc.id,
+                    },
+                },
             })
         }
 
-        if (args.allowVpcRead || args.allowVpcList) {
-            let statements: aws.iam.PolicyStatement[] = []
-            if (args!.allowVpcRead) {
-                statements.push({
-                    Effect: "Allow",
-                    Principal: {
-                        "AWS": "*"
-                    },
-                    Action: "s3:GetObject",
-                    Resource: pulumi.interpolate`arn:aws:s3:::${this.bucket}/*`,
-                    Condition: {
-                        "StringEquals": {
-                            "aws:sourceVpc": vpc.vpc.id,
-                        },
-                    },
-                })
-            }
-            if (args!.allowVpcList) {
-                statements.push({
-                    Effect: "Allow",
-                    Principal: {
-                        "AWS": "*"
-                    },
-                    Action: "s3:ListBucket",
-                    Resource: pulumi.interpolate`arn:aws:s3:::${this.bucket}`,
-                    Condition: {
-                        "StringEquals": {
-                            "aws:sourceVpc": vpc.vpc.id,
-                        },
-                    },
-                })
-            }
-
-            new aws.s3.BucketPolicy(name, {
-                bucket: this.bucket,
-                policy: {
-                    Version: "2012-10-17",
-                    Statement: statements,
-                },
-            }, {
-                dependsOn: bucketPublicAccessBlock,
-            })
-        }
+        new aws.s3.BucketPolicy(name, {
+            bucket: this.bucket,
+            policy: {
+                Version: "2012-10-17",
+                Statement: statements,
+            },
+        }, {
+            dependsOn: bucketPublicAccessBlock,
+        })
     }
 
     // walk recursively traverses the provided directory, applying the provided function
@@ -219,14 +193,6 @@ export interface BucketArgs {
      */
     readonly accessLogsBucket?: aws.s3.Bucket
     /**
-     * Allow public list access to bucket.
-     */
-    readonly allowPublicList?: boolean
-    /**
-     * Allow public read access to bucket.
-     */
-    readonly allowPublicRead?: boolean
-    /**
      * Allow list access to bucket from within VPC.
      */
     readonly allowVpcList?: boolean
@@ -234,6 +200,10 @@ export interface BucketArgs {
      * Allow read access to bucket from within VPC.
      */
     readonly allowVpcRead?: boolean
+    /**
+     * Do not set bucket policies.
+     */
+    readonly customPolicy?: boolean
     /**
      * Extra arguments to use to populate `aws.s3.BucketArgs` resource's properties on top of the default ones.
      */

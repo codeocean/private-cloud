@@ -22,11 +22,17 @@ server {
 
     root /usr/share/nginx/html;
 
+    # Instruct web browsers to only access the application using HTTPS
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
     # Do not allow embedding into other sites
     add_header X-Frame-Options "SAMEORIGIN" always;
 
     # Omit referrer header
     add_header Referrer-Policy "no-referrer";
+
+    # Disable content type sniffing
+    add_header X-Content-Type-Options "nosniff";
 
     # No caching by default
     expires -1;
@@ -59,6 +65,11 @@ server {
         }
         location ~* \.(?:png|jpg|jpeg|gif|svg)$ {
             expires 1d;
+        }
+
+        # Editor language configurations
+        location ~* \/tmLanguages\/ {
+            expires 1y;
         }
     }
 }

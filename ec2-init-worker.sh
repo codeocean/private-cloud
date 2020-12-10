@@ -6,15 +6,15 @@ set -x
 #
 
 # Mount the docker EBS volume
-echo "UUID=$(blkid -s UUID -o value /dev/nvme1n1)  /docker  xfs defaults 0 2" >> /etc/fstab
+echo "UUID=$(blkid -s UUID -o value /dev/sdf)  /docker  xfs defaults 0 2" >> /etc/fstab
 mount /docker
 
 systemctl restart docker
 
 # Mount the worker EBS volume
 mkdir /worker
-mkfs -t xfs /dev/nvme2n1
-echo "UUID=$(blkid -s UUID -o value /dev/nvme2n1)  /worker  xfs defaults 0 2" >> /etc/fstab
+mkfs -t xfs {{#if useInstanceStore}}/dev/nvme2n1{{else}}/dev/sde{{/if}}
+echo "UUID=$(blkid -s UUID -o value {{#if useInstanceStore}}/dev/nvme2n1{{else}}/dev/sde{{/if}})  /worker  xfs defaults 0 2" >> /etc/fstab
 mount /worker
 
 # Mount EFS
@@ -31,6 +31,8 @@ until mount /datasets; do sleep 1; done
 echo 'CONFIG_BUCKET="{{configBucketName}}"' >> /etc/default/codeocean
 # Set the pulumi stack name
 echo 'PULUMI_STACK_NAME="{{pulumiStackName}}"' >> /etc/default/codeocean
+# Set Machine Type
+echo 'MACHINE_TYPE={{machineType}}' >> /etc/default/codeocean
 
 systemctl restart codeocean
 

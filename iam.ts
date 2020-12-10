@@ -79,6 +79,12 @@ new aws.iam.RolePolicyAttachment("servicesinstancerole-s3-policy", {
     role: servicesInstanceRole.name,
 })
 
+if (config.services.aws.elasticsearch.enabled) {
+    new aws.iam.ServiceLinkedRole("elasticsearch", {
+        awsServiceName: "es.amazonaws.com"
+    })
+}
+
 // Workers
 
 export const workerInstanceRole = new aws.iam.Role("WorkerInstanceRole", {

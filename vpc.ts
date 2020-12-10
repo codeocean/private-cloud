@@ -157,21 +157,47 @@ if (config.services.aws.redis.enabled) {
             fromPort: 6379,
             toPort: 6379,
             securityGroups: [
-                sgServices.id, 
-                sgWorkers.id
+                sgServices.id,
+                sgWorkers.id,
             ],
             description: "Access to redis service from services machine and workers",
-        }]
+        }],
     })
 } else {
-    new aws.ec2.SecurityGroupRule("redis-from-workers", {	
-        type: "ingress",	
-        protocol: "tcp",	
-        fromPort: 6379,	
-        toPort: 6379,	
-        securityGroupId: sgServices.id,	
-        sourceSecurityGroupId: sgWorkers.id,	
-        description: "redis from workers",	
+    new aws.ec2.SecurityGroupRule("redis-from-workers", {
+        type: "ingress",
+        protocol: "tcp",
+        fromPort: 6379,
+        toPort: 6379,
+        securityGroupId: sgServices.id,
+        sourceSecurityGroupId: sgWorkers.id,
+        description: "redis from workers",
+    })
+}
+
+export let sgElasticsearch : aws.ec2.SecurityGroup | undefined
+
+if (config.services.aws.elasticsearch.enabled) {
+    sgElasticsearch = new aws.ec2.SecurityGroup("elasticsearch", {
+        vpcId: vpc.id,
+        ingress: [{
+            protocol: "tcp",
+            fromPort: 9200,
+            toPort: 9200,
+            securityGroups: [
+                sgServices.id,
+            ],
+            description: "Access to elasticsearch domain from services machine",
+        },
+        {
+            protocol: "tcp",
+            fromPort: 443,
+            toPort: 443,
+            securityGroups: [
+                sgServices.id,
+            ],
+            description: "Access to elasticsearch domain from services machine",
+        }],
     })
 }
 

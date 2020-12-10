@@ -10,6 +10,7 @@ import * as config from "./config"
 import * as ebs from "./ebs"
 import * as ec2 from "./ec2"
 import * as lb from "./lb"
+import * as slots from "./slots"
 import * as sns from "./sns"
 
 const getLogGroupNames = new AWS.CloudWatchLogs().describeLogGroups({
@@ -59,7 +60,7 @@ export const workersLogGroup = getLogGroupOpts("workers").then(opts => {
     }, opts)
 })
 
-if (!config.workers.maintainIdleWorker) {
+if (!config.workers.general.maintainIdleWorker) {
     // Scale out when all computation run requests in an evaluation period fail with an overloaded status
     new aws.cloudwatch.MetricAlarm("workers-available-slots-low", {
         alarmActions: [asg.workersAvailableSlotsScaleOutPolicy.arn],
@@ -86,11 +87,11 @@ if (!config.workers.maintainIdleWorker) {
         alarmActions: [asg.workersAvailableSlotsScaleInPolicy.arn],
         alarmDescription: "Workers slot utilization is low",
         comparisonOperator: "LessThanOrEqualToThreshold",
-        datapointsToAlarm: config.workers.autoScalingIdleTimeout,
+        datapointsToAlarm: config.workers.general.autoScalingIdleTimeout,
         dimensions: {
             AutoScalingGroupName: asg.workersAsg.name,
         },
-        evaluationPeriods: config.workers.autoScalingIdleTimeout,
+        evaluationPeriods: config.workers.general.autoScalingIdleTimeout,
         metricName: "SlotsUtilization",
         namespace: "CodeOcean",
         period: 60,
@@ -116,7 +117,7 @@ if (!config.workers.maintainIdleWorker) {
         namespace: "CodeOcean",
         period: 10,
         statistic: "Maximum",
-        threshold: 16,
+        threshold: slots.config.general.slotsPerWorker,
         tags: {
             deployment: config.deploymentName,
         },
@@ -136,13 +137,96 @@ if (!config.workers.maintainIdleWorker) {
         namespace: "CodeOcean",
         period: 10,
         statistic: "Sum",
-        threshold: 320,
+        threshold: pulumi.output(slots.config.general.slotsPerWorker).apply(v => v * 2 * 10),
         tags: {
             deployment: config.deploymentName,
         },
     })
 }
 
+if (!config.workers.gpu.maintainIdleWorker) {
+    // Scale out when all computation run requests in an evaluation period fail with an overloaded status
+    new aws.cloudwatch.MetricAlarm("workers-gpu-available-slots-low", {
+        alarmActions: [asg.workersGpuAvailableSlotsScaleOutPolicy.arn],
+        alarmDescription: "No gpu workers available to execute a computation task",
+        comparisonOperator: "GreaterThanOrEqualToThreshold",
+        datapointsToAlarm: 1,
+        dimensions: {
+            "InstanceID": ec2.servicesInstance.id,
+            "MachineType": "1",
+        },
+        evaluationPeriods: 1,
+        metricName: "OverloadStatus",
+        namespace: "CodeOcean",
+        period: 10,
+        statistic: "Minimum",
+        tags: {
+            deployment: config.deploymentName,
+        },
+        threshold: 1,
+    })
+
+    // Scale in whenever a worker is idle
+    new aws.cloudwatch.MetricAlarm("workers-gpu-slot-utilization-low", {
+        alarmActions: [asg.workersGpuAvailableSlotsScaleInPolicy.arn],
+        alarmDescription: "Workers gpu slot utilization is low",
+        comparisonOperator: "LessThanOrEqualToThreshold",
+        datapointsToAlarm: config.workers.gpu.autoScalingIdleTimeout,
+        dimensions: {
+            AutoScalingGroupName: asg.workersGpuAsg.name,
+        },
+        evaluationPeriods: config.workers.gpu.autoScalingIdleTimeout,
+        metricName: "SlotsUtilization",
+        namespace: "CodeOcean",
+        period: 60,
+        statistic: "Minimum",
+        threshold: 0,
+        tags: {
+            deployment: config.deploymentName,
+        },
+        treatMissingData: "notBreaching",
+    })
+} else {
+    // Scale out so we have machine with the maximum amount of slots we make a available for a single run
+    new aws.cloudwatch.MetricAlarm("workers-gpu-available-slots-low", {
+        alarmActions: [asg.workersGpuAvailableSlotsScaleOutPolicy.arn],
+        alarmDescription: "Workers gpu available slots are low",
+        comparisonOperator: "LessThanThreshold",
+        datapointsToAlarm: 6,
+        dimensions: {
+            AutoScalingGroupName: asg.workersGpuAsg.name,
+        },
+        evaluationPeriods: 6,
+        metricName: "AvailableSlots",
+        namespace: "CodeOcean",
+        period: 10,
+        statistic: "Maximum",
+        threshold: slots.config.general.slotsPerWorker,
+        tags: {
+            deployment: config.deploymentName,
+        },
+    })
+
+    // Scale in so we have a maximum of 1 excess machine
+    new aws.cloudwatch.MetricAlarm("workers-gpu-available-slots-high", {
+        alarmActions: [asg.workersGpuAvailableSlotsScaleInPolicy.arn],
+        alarmDescription: "Workers gpu available slots are high",
+        comparisonOperator: "GreaterThanOrEqualToThreshold",
+        datapointsToAlarm: 6,
+        dimensions: {
+            AutoScalingGroupName: asg.workersGpuAsg.name,
+        },
+        evaluationPeriods: 6,
+        metricName: "AvailableSlots",
+        namespace: "CodeOcean",
+        period: 10,
+        statistic: "Sum",
+        threshold: pulumi.output(slots.config.gpu.slotsPerWorker).apply(v => v * 2 * 10),
+        tags: {
+            deployment: config.deploymentName,
+        },
+    })
+}
 
 interface VolumeUsageAlarmArgs {
     minutesToAlarm: number

@@ -1,0 +1,95 @@
+{
+	"ListenPort": 8200,
+	"MachineType": 1,
+	"SlotScheduling": true,
+	"ReservedMemory": {{slotsConfig.gpu.workerReservedMemoryMB}},
+	"DedicatedReservedMemory": 209715200,
+	"ScaleCheckFrequency": 60,
+	"StatsUpdateFrequency": 1,
+	"StatsExpiration": 3,
+	"AlgorithmMountPath": "/worker",
+	"DatasetsFolder": "/datasets",
+	{{#if config.features.capsuleCache}}
+	"CapsuleCacheFolder": "/capsule-cache",
+	{{/if}}
+	"CloudWorkstation": {
+		"NetType": "host",
+		"Host": "https://{{config.domains.cloudWorkstation}}",
+		"CPUUsageActiveThreshold": 2,
+		"GPUUsageActiveThreshold": 2
+	},
+	"ToolsFolder":	"/codeocean-tools",
+	"Docker": {
+		"UseEnv": false,
+		"PrivateRegistryHost": "{{config.services.registryHost}}",
+		"Network": "computation-network",
+		"FileOwnership": "165536:165536",
+		"ShmSize": "4g"
+	},
+	"Storage": {
+		"Region": "{{config.aws.region}}",
+		"Bucket": "{{buckets.results}}",
+		"DatasetsBucket": "{{buckets.datasets}}",
+		"InputBucket": "{{buckets.inputfiles}}"
+	},
+	"Redis": {
+		{{#if config.services.aws.redis.enabled}}
+		"Address": "{{services.redis.address}}",
+		"TLS": true,
+		{{else}}
+		"Address": "redis.svc",
+		{{/if}}
+		"Port": 6379,
+		"Password": "{{secrets.redis.password}}",
+		"Database": 0
+	},
+	"Input": {
+		"InputPath": "/my-input"
+	},
+	"Services": {
+		"AlgorithmServiceHost": "http://wapi.svc:8201",
+		"AnalyticsServiceHost": "http://wapi.svc:8201",
+		"CollaborationServiceHost": "http://wapi.svc:8201",
+		"ComputationServiceHost": "http://wapi.svc:8201",
+		"CredMapServiceHost": "http://wapi.svc:8201",
+		"CWProxyServiceHost": "http://wapi.svc:8201",
+		"DatasetServiceHost": "http://wapi.svc:8201",
+		"DockerImageServiceHost": "http://wapi.svc:8201",
+		"FileServiceHost": "http://wapi.svc:8201",
+		"IdeServiceHost": "http://wapi.svc:8201",
+		"InstallerServiceHost": "http://wapi.svc:8201",
+		"JobServiceHost": "http://wapi.svc:8201",
+		"LanguageServiceHost": "http://wapi.svc:8201",
+		"RunConfigurationServiceHost": "http://wapi.svc:8201",
+		"UserServiceHost": "http://wapi.svc:8201",
+		"WorkspaceServiceHost": "http://wapi.svc:8201"
+	},
+	"WDT": {
+		"DockerImage": "524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/wdt:2019-02-14-b8f978f",
+		"UsernsMode": "host",
+		"Network": "host"
+	},
+	"Git": {
+		"DockerImage": "524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/git:2019-03-14-a5f7d08"
+	},
+	"Tools": {
+		"DockerImage": "524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/tools:2020-06-28-5077a92"
+	},
+	"S3fS": {
+		"DockerImage": "524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/s3fs:2020-10-22-4d36418"
+	},
+	"Slot": {
+		"CPU": {{slotsConfig.gpu.slot.cpu}},
+		"Memory": {{slotsConfig.gpu.slot.memory}}
+	},
+	"GiteaProxyURL": "https://{{config.domains.git}}",
+	"Conversions": {
+		"ps": "pdf",
+		"eps": "pdf",
+		"ppm": "png",
+		"pgm": "png",
+		"pbm": "png",
+		"tif": "png",
+		"tiff": "png"
+	}
+}

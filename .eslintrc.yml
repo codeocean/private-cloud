@@ -19,6 +19,7 @@ settings:
   import/parsers:
     typescript-eslint/parser: [.ts, .tsx]
 rules:
+  comma-dangle: ["error", "always-multiline"]
   indent: ["error", 4]
   quotes: ["error", "double"]
   semi: ["error", "never"]

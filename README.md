@@ -35,11 +35,6 @@ pulumi config set auth.allowedDomains [allowed signup domain list, eg `acmecorp.
 pulumi config set domains.app [hosting domain, eg `codeocean.[acmecorp].com`]
 ```
 
-The Code Ocean workers can leverage instance store volumes for better performance, depending on worker instance type. The default worker type supports instance store volume:
-```
-pulumi config set workers.useInstanceStore true
-```
-
 To configure Google OAuth2 client credentials:
 ```
 pulumi config set auth.google.clientID
@@ -94,17 +89,16 @@ This could fail the provisioning of an SSL certificate that is part of the deplo
 DNS verification, and in turn, would fail the deployment.
 Wait until the DNS change propagates and run the deployment again with `pulumi up`.
 
-## System Initialization
+## Site administrator signup
 
-1. Go to `https://codeocean.[acmecorp].com/join` to create an admin account.
-1. In the admin panel, go to Initialize System Data on the left.
-1. Click Select All.
-1. Click Initialize System Data and wait for the `done` indication.
+Go to `https://codeocean.[acmecorp].com/join` to create an admin account.
 
 ## Base Image Deployment
 
 1. Navigate to the Docker Image Deployment section in the Admin panel.
-1. Fill in the image details. For example, a Python Miniconda3 base image:
+1. Fill in the image details. Examples:
+
+    Python Miniconda3 base image:
     ```
     Name: Python
     Version: 3.8.1, miniconda 4.8.2, jupyterlab 2.1.1
@@ -114,7 +108,7 @@ Wait until the DNS change propagates and run the deployment again with `pulumi u
     Description: Conda makes this environment a great starting point for installing other languages.
     Keywords: Python, JupyterLab, Ubuntu, 18.04
     ```
-    Or, an R base image:
+    R base image:
     ```
     Name: R
     Version: 3.6.3, RStudio 1.2.5019
@@ -124,26 +118,14 @@ Wait until the DNS change propagates and run the deployment again with `pulumi u
     Description: R is a language and environment for statistical computing and graphics. RStudio is an integrated development environment for R.
     Keywords: R, RStudio, Ubuntu, 18.04
     ```
+    Python Miniconda3 base image with GPU support:
+    ```
+    Name: Python with GPU support
+    Version: 3.7.3, miniconda 4.7.10, CUDA 10.1
+    Source: registry.codeocean.com/codeocean/miniconda3:4.7.10-cuda10.1-cudnn7-ubuntu18.04
+    Language: Python
+    Machine Type: 1
+    Description: Includes CUDA 10.1 and cuDNN 7 support. conda makes this a great starting point for installing deep learning frameworks and other languages (including Python 2.7).
+    Keywords: Python, GPU, Ubuntu, 18.04
+    ```    
 1. Press Deploy.
-
-## SSH into EC2 instances
-
-First, enable SSH connections through AWS Session Manager:
-https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-getting-started-enable-ssh-connections.html
-
-Second, make sure the private key from your EC2 key pair is available.
-
-To SSH into the services machine:
-```
-ssh ec2-user@`pulumi stack output ec2ServicesInstanceId`
-```
-
-To SSH into one of the worker machines, list the machines:
-```
-aws ec2 describe-instances --query 'Reservations[*].Instances[*].[LaunchTime,InstanceId,State.Name,PrivateIpAddress,Tags[?Key==`role`] | [0].Value][]' --output table
-```
-
-Then use the instance ID to SSH:
-```
-ssh ec2-user@[instance-id]
-```

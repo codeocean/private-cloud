@@ -5,6 +5,7 @@ import * as config from "../config"
 import { Bucket } from "./bucket"
 
 export const accessLogsBucket = new Bucket("access-logs", {
+    customPolicy: true,
     extraArgs: {
         acl: "log-delivery-write",
         forceDestroy: true,
@@ -18,6 +19,20 @@ export const accessLogsBucketPolicy = new aws.s3.BucketPolicy("access-logs-bucke
     policy: {
         Version: "2012-10-17",
         Statement: [{
+            Sid: "AllowSSLRequestsOnly",
+            Effect: "Deny",
+            Principal: "*",
+            Action: "s3:*",
+            Resource: [
+                pulumi.interpolate`arn:aws:s3:::${accessLogsBucket.bucket}`,
+                pulumi.interpolate`arn:aws:s3:::${accessLogsBucket.bucket}/*`,
+            ],
+            Condition: {
+                Bool: {
+                    "aws:SecureTransport": "false",
+                },
+            },
+        }, {
             Effect: "Allow",
             Principal: {
                 AWS: `arn:aws:iam::${config.elbAccountId[config.aws.region]}:root`,
@@ -33,13 +48,13 @@ export const accessLogsBucketPolicy = new aws.s3.BucketPolicy("access-logs-bucke
             Resource: pulumi.interpolate `arn:aws:s3:::${accessLogsBucket.bucket}/load-balacing/AWSLogs/${accountId}/*`,
             Condition: {
                 StringEquals: {
-                    "s3:x-amz-acl": "bucket-owner-full-control"
-                }
-            }
+                    "s3:x-amz-acl": "bucket-owner-full-control",
+                },
+            },
         }, {
             Effect: "Allow",
             Principal: {
-                Service: "delivery.logs.amazonaws.com"
+                Service: "delivery.logs.amazonaws.com",
             },
             Action: "s3:GetBucketAcl",
             Resource: pulumi.interpolate `arn:aws:s3:::${accessLogsBucket.bucket}`,

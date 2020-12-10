@@ -3,6 +3,7 @@ import * as pulumi from "@pulumi/pulumi"
 
 import * as config from "../config"
 import * as dedicatedMachines from "../dedicated-machines"
+import * as elasticsearch from "../elasticsearch"
 import * as keys from "../keys"
 import * as redis from "../redis"
 import * as secrets from "../secrets"
@@ -42,7 +43,8 @@ const context = pulumi.all([
     keys.appKey.privateKeyPem,
     keys.appKey.publicKeyPem,
     keys.samlCert.certPem,
-    redis.replicationGroup ? redis.replicationGroup!.primaryEndpointAddress : undefined,
+    redis.replicationGroup?.primaryEndpointAddress,
+    elasticsearch.searchDomain?.endpoint,
 ]).apply(([
     accountId_,
     assetsBucketName,
@@ -71,6 +73,7 @@ const context = pulumi.all([
     appPublicKey,
     samlCert,
     redisAddress,
+    elasticsearchAddress,
 ]) => {
     config.aws.accountId = accountId_
 
@@ -122,6 +125,9 @@ const context = pulumi.all([
             redis: {
                 address: redisAddress,
             },
+            elasticsearch: {
+                address: elasticsearchAddress,
+            },
         },
         keys: {
             app: {
@@ -131,7 +137,7 @@ const context = pulumi.all([
             saml: {
                 privateKey: appPrivateKey,
                 publicCert: samlCert,
-            }
+            },
         },
         slotsConfig: slots.config,
     }

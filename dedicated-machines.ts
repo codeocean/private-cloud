@@ -20,7 +20,7 @@ export const launchTemplate = new aws.ec2.LaunchTemplate("dedicated-worker", {
         deployment: "codeocean-private-cloud",
     },
     imageId: dedicatedWorkerImage,
-    instanceType: config.workers.instanceType,
+    instanceType: config.workers.general.instanceType,
     keyName: config.aws.keyPair,
     blockDeviceMappings: [{
         deviceName: "/dev/sdf",

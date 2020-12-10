@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+## 0.9.0 (2020-12-08)
+
+- Improved share functionality of data assets for security and simplicity with user
+  permission management
+- Ability to create datasets in Code Ocean, where data is kept on remote AWS storage
+- Minor updates to the Secret Management UI based on customer feedback
+- Support for AWS managed Redis and ElasticSearch
+- Fixes to Package Management allowing bulk version reset functionality
+- Ability to run GPU computations - in preview
+- Various security hardenings
+
 ## 0.8.2 (2020-11-18)
 
 - Fix CloudWatch logs filter for worker internal error metric

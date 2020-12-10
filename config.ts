@@ -1,7 +1,7 @@
 import * as pulumi from "@pulumi/pulumi"
 
 // Latest released Code Ocean Enterprise AMIs per region
-interface AMIConfig {
+export interface AMIConfig {
     services: {
         [region: string]: string,
     },
@@ -73,13 +73,20 @@ interface GitProvidersConfig {
 interface RedisConfig {
     enabled?: boolean,
     instanceType?: string,
-    multiAZ?: boolean
+    multiAZ?: boolean,
+}
+
+interface ElasticsearchConfig {
+    enabled?: boolean,
+    instanceType?: string,
+    multiAZ?: boolean,
 }
 
 interface ServicesConfig {
     registryHost: string,
     aws: {
-        redis: RedisConfig
+        redis: RedisConfig,
+        elasticsearch: ElasticsearchConfig,
     },
     segment: {
         backend: {
@@ -89,6 +96,11 @@ interface ServicesConfig {
             apiKey?: pulumi.Output<string>,
         },
     }
+}
+
+interface VersionConfig {
+    label: string
+    version: string
 }
 
 interface VpcConfig {
@@ -103,6 +115,11 @@ interface WorkerConfig {
     instanceType: string,
     maintainIdleWorker: boolean,
     useInstanceStore?: boolean,
+}
+
+interface WorkersConfig {
+    general: WorkerConfig,
+    gpu: WorkerConfig,
 }
 
 /**
@@ -127,6 +144,11 @@ const awsConfig = new pulumi.Config("aws")
 export const project = pulumi.getProject()
 export const stackname = pulumi.getStack()
 export const deploymentName = `codeocean-${project}-${stackname}`
+
+export const version: VersionConfig = {
+    label: "Private and external datasets",
+    version: "0.9.0",
+}
 
 export const deployment: DeploymentConfig = {
     singleInstance: config.getBoolean("singleInstance") === true,
@@ -153,6 +175,9 @@ export const services: ServicesConfig = {
     aws: {
         redis: config.getObjectWithDefaults<RedisConfig>("aws.redis", {
             instanceType: "cache.t3.micro",
+        }),
+        elasticsearch: config.getObjectWithDefaults<ElasticsearchConfig>("aws.elasticsearch", {
+            instanceType: "t3.small.elasticsearch",
         }),
     },
     segment: {
@@ -181,25 +206,43 @@ if (config.get("auth.allowedDomains")) {
     auth.allowedDomains = config.require("auth.allowedDomains").split(",").map((x) => x.trim())
 }
 
-export const workers: WorkerConfig = {
-    autoScalingMaxSize: config.getNumber("workers.autoScalingMaxSize") || 3,
-    autoScalingMinSize: config.getNumber("workers.autoScalingMinSize") || 0,
-    autoScalingIdleTimeout: config.getNumber("workers.autoScalingIdleTimeout") || 60,
-    instanceType: config.get("workers.instanceType", { pattern: RegExp(/^r5d\..*$/) } ) || "r5d.4xlarge",
-    maintainIdleWorker: config.getBoolean("workers.maintainIdleWorker") || false,
-    useInstanceStore: config.getBoolean("workers.useInstanceStore"),
+export const workers: WorkersConfig = {
+    general: {
+        autoScalingMaxSize: config.getNumber("workers.autoScalingMaxSize") || 3,
+        autoScalingMinSize: config.getNumber("workers.autoScalingMinSize") || 0,
+        autoScalingIdleTimeout: config.getNumber("workers.autoScalingIdleTimeout") || 60,
+        instanceType: config.get("workers.instanceType", { pattern: RegExp(/^r5d\..*$/) } ) || "r5d.4xlarge",
+        maintainIdleWorker: config.getBoolean("workers.maintainIdleWorker") || false,
+        useInstanceStore: config.getBoolean("workers.useInstanceStore") || true,
+    },
+    gpu: {
+        autoScalingMaxSize: config.getNumber("workers.gpu.autoScalingMaxSize") || 3,
+        autoScalingMinSize: config.getNumber("workers.gpu.autoScalingMinSize") || 0,
+        autoScalingIdleTimeout: config.getNumber("workers.gpu.autoScalingIdleTimeout") || 60,
+        instanceType: config.get("workers.gpu.instanceType", { pattern: RegExp(/^p[234]d?\..*$/) } ) || "p2.xlarge",
+        maintainIdleWorker: config.getBoolean("workers.gpu.maintainIdleWorker") || false,
+        useInstanceStore: config.getBoolean("workers.useInstanceStore") || false,
+    },
+}
+
+// Validation
+if (workers.general.maintainIdleWorker && workers.general.autoScalingMinSize < 1) {
+    throw new Error("'workers.autoScalingMinSize' must be greater than 1 when specifying 'workers.maintainIdleWorker'")
+}
+if (workers.gpu.maintainIdleWorker && workers.gpu.autoScalingMinSize < 1) {
+    throw new Error("'workers.gpu.autoScalingMinSize' must be greater than 1 when specifying 'workers.gpu.maintainIdleWorker'")
 }
 
 export const features = config.getObject<FeaturesConfig>("features")
 
 export const ami: AMIConfig = {
     services: {
-        "us-east-1": config.get("services.ami") || "ami-004863b83de262710",
-        "eu-central-1": config.get("services.ami") || "ami-0e9b30df5f78f15e0",
+        "us-east-1": config.get("services.ami") || "ami-0aea5dec777756f33",
+        "eu-central-1": config.get("services.ami") || "ami-047d190541fa082f3",
     },
     worker: {
-        "us-east-1": config.get("workers.ami") || "ami-096aa408a0a112f0c",
-        "eu-central-1": config.get("workers.ami") || "ami-0f37377a58be539ef",
+        "us-east-1": config.get("workers.ami") || "ami-075781814ae5ccfc8",
+        "eu-central-1": config.get("workers.ami") || "ami-0e91d7a29207dd69a",
     },
 }
 

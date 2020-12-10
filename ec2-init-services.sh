@@ -21,6 +21,9 @@ fi
 echo "UUID=$(blkid -s UUID -o value /dev/nvme2n1)  /data  xfs defaults 0 2" >> /etc/fstab
 mount /data
 
+# Set es container user as elasticsearch dir owner if exists
+mkdir -p /data/elasticsearch && chown -R 1000 /data/elasticsearch || true
+
 # Mount EFS
 {{#if capsuleCacheEfsId}}
 mkdir /capsule-cache
