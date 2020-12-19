@@ -18,6 +18,8 @@ export const Migration = new Provisioner<string, never>("migration-provisioner",
     ],
 })
 
+export const delay = (t: number) => new Promise(resolve => setTimeout(resolve, t))
+
 function runMigration(): Promise<never> {
     return new Promise((resolve, reject) => {
         const runMigrationDocumentName = ssm.runMigrationDocument.name.get()
@@ -30,7 +32,7 @@ function runMigration(): Promise<never> {
             Parameters: {
                 "dryRun": ["false"],
             },
-        }).promise().then(response => ssmClient.waitFor("commandExecuted", {
+        }).promise().then(response => delay(3000).then(() => ssmClient.waitFor("commandExecuted", {
             CommandId: response.Command!.CommandId!,
             InstanceId: servicesInstanceId,
             $waiter: {
@@ -42,6 +44,6 @@ function runMigration(): Promise<never> {
                 throw new Error(`Migration failed with status '${response.Status}'`)
             }
             resolve()
-        })).catch(reject)
+        }))).catch(reject)
     })
 }

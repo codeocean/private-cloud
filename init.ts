@@ -2,7 +2,7 @@ import * as AWS from "aws-sdk"
 
 import * as config from "./config"
 import * as ec2 from "./ec2"
-import * as migration from "./migration"
+import { delay, Migration } from "./migration"
 import { Provisioner } from "./provisioner"
 import * as ssm from "./ssm"
 
@@ -14,7 +14,7 @@ export const InitSystemData = new Provisioner<config.AMIConfig, never>("init-sys
 }, {
     dependsOn: [
         ec2.servicesInstance,
-        migration.Migration,
+        Migration,
         ssm.runInitSystemDataDocument,
     ],
 })
@@ -28,7 +28,7 @@ function runInitSystemData(): Promise<never> {
         ssmClient.sendCommand({
             DocumentName: runInitSystemDataDocumentName,
             InstanceIds: [servicesInstanceId],
-        }).promise().then(response => ssmClient.waitFor("commandExecuted", {
+        }).promise().then(response => delay(3000).then(() => ssmClient.waitFor("commandExecuted", {
             CommandId: response.Command!.CommandId!,
             InstanceId: servicesInstanceId,
             $waiter: {
@@ -40,6 +40,6 @@ function runInitSystemData(): Promise<never> {
                 throw new Error(`Init system data failed with status '${response.Status}'`)
             }
             resolve()
-        })).catch(reject)
+        }))).catch(reject)
     })
 }

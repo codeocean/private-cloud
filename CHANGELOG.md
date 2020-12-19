@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.9.1 (2020-12-19)
+
+- Fix deployment error when running migration
+
 ## 0.9.0 (2020-12-08)
 
 - Improved share functionality of data assets for security and simplicity with user
