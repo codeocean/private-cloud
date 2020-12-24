@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.9.2 (2020-12-24)
+
+- Fix Google OAuth2 issue in adding new dataset from Google Cloud bucket
+
 ## 0.9.1 (2020-12-19)
 
 - Fix deployment error when running migration

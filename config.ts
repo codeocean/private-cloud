@@ -147,7 +147,7 @@ export const deploymentName = `codeocean-${project}-${stackname}`
 
 export const version: VersionConfig = {
     label: "Private and external datasets",
-    version: "0.9.1",
+    version: "0.9.2",
 }
 
 export const deployment: DeploymentConfig = {
@@ -237,8 +237,8 @@ export const features = config.getObject<FeaturesConfig>("features")
 
 export const ami: AMIConfig = {
     services: {
-        "us-east-1": config.get("services.ami") || "ami-0aea5dec777756f33",
-        "eu-central-1": config.get("services.ami") || "ami-047d190541fa082f3",
+        "us-east-1": config.get("services.ami") || "ami-0aee811ed7a6312b2",
+        "eu-central-1": config.get("services.ami") || "ami-0a169eaaec47711d4",
     },
     worker: {
         "us-east-1": config.get("workers.ami") || "ami-075781814ae5ccfc8",
