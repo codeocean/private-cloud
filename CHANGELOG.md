@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.9.3 (2020-12-30)
+
+- Fix AWS region configuration when using aws-sdk for Node.js
+
 ## 0.9.2 (2020-12-24)
 
 - Fix Google OAuth2 issue in adding new dataset from Google Cloud bucket

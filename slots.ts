@@ -75,7 +75,7 @@ function getSlotsFromInfo(instanceTypeInfo: AWS.EC2.InstanceTypeInfo, gpu: Boole
 
 }
 
-export const config = pulumi.output<SlotsConfig>(new AWS.EC2({apiVersion: "2016-11-15"}).describeInstanceTypes({
+export const config = pulumi.output<SlotsConfig>(new AWS.EC2({apiVersion: "2016-11-15", region: pulumiConfig.aws.region}).describeInstanceTypes({
     InstanceTypes: [
         pulumiConfig.workers.general.instanceType,
         pulumiConfig.workers.gpu.instanceType,

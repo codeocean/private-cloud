@@ -16,7 +16,7 @@ Create a key pair (normally, `codeocean`). Store the private key to be able to S
 1. Install Pulumi cli: https://www.pulumi.com/docs/get-started/install/
 1. Please make a choice of the pulumi backend you'll be working with to store infrastructure state:
 https://www.pulumi.com/docs/intro/concepts/state/
-1. Install Node.js v12, eg `brew install node@12`
+1. Install Node.js v14, eg `brew install node@14`
 1. Clone this repository: `git clone https://github.com/codeocean/private-cloud.git && cd private-cloud`
 1. Install npm packages: `npm ci`
 1. Login to pulumi with the backend of choice: `pulumi login [options]`

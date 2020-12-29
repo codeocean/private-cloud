@@ -147,7 +147,7 @@ export const deploymentName = `codeocean-${project}-${stackname}`
 
 export const version: VersionConfig = {
     label: "Private and external datasets",
-    version: "0.9.2",
+    version: "0.9.3",
 }
 
 export const deployment: DeploymentConfig = {

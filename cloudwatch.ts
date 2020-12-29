@@ -13,7 +13,7 @@ import * as lb from "./lb"
 import * as slots from "./slots"
 import * as sns from "./sns"
 
-const getLogGroupNames = new AWS.CloudWatchLogs().describeLogGroups({
+const getLogGroupNames = new AWS.CloudWatchLogs({region: config.aws.region}).describeLogGroups({
     logGroupNamePrefix: `/codeocean/${config.stackname}/`,
 }).promise().then(v => v.logGroups?.map(v => v.logGroupName))
 

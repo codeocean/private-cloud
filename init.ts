@@ -23,7 +23,7 @@ function runInitSystemData(): Promise<never> {
     return new Promise((resolve, reject) => {
         const runInitSystemDataDocumentName = ssm.runInitSystemDataDocument.name.get()
         const servicesInstanceId = ec2.servicesInstance.id.get()
-        const ssmClient = new AWS.SSM()
+        const ssmClient = new AWS.SSM({region: config.aws.region})
 
         ssmClient.sendCommand({
             DocumentName: runInitSystemDataDocumentName,

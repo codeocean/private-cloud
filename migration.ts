@@ -24,7 +24,7 @@ function runMigration(): Promise<never> {
     return new Promise((resolve, reject) => {
         const runMigrationDocumentName = ssm.runMigrationDocument.name.get()
         const servicesInstanceId = ec2.servicesInstance.id.get()
-        const ssmClient = new AWS.SSM()
+        const ssmClient = new AWS.SSM({region: config.aws.region})
 
         ssmClient.sendCommand({
             DocumentName: runMigrationDocumentName,
