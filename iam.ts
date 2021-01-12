@@ -40,6 +40,7 @@ const servicesInstanceS3AccessPolicy = new aws.iam.Policy("ServicesInstanceS3Acc
                 s3BucketObjectsArn(s3.configBucket),
                 s3BucketObjectsArn(s3.datasetsBucket),
                 s3BucketObjectsArn(s3.inputFilesBucket),
+                s3BucketObjectsArn(s3.licensesBucket),
                 s3BucketObjectsArn(s3.publicBucket),
                 s3BucketObjectsArn(s3.resultsBucket),
                 s3BucketObjectsArn(s3.tempBucket),
@@ -52,6 +53,7 @@ const servicesInstanceS3AccessPolicy = new aws.iam.Policy("ServicesInstanceS3Acc
                 s3.configBucket.arn,
                 s3.datasetsBucket.arn,
                 s3.inputFilesBucket.arn,
+                s3.licensesBucket.arn,
                 s3.publicBucket.arn,
                 s3.resultsBucket.arn,
                 s3.tempBucket.arn,
@@ -66,6 +68,7 @@ const servicesInstanceS3AccessPolicy = new aws.iam.Policy("ServicesInstanceS3Acc
             Resource: [
                 s3BucketObjectsArn(s3.datasetsBucket),
                 s3BucketObjectsArn(s3.inputFilesBucket),
+                s3BucketObjectsArn(s3.licensesBucket),
                 s3BucketObjectsArn(s3.publicBucket),
                 s3BucketObjectsArn(s3.resultsBucket),
                 s3BucketObjectsArn(s3.tempBucket),
@@ -81,7 +84,7 @@ new aws.iam.RolePolicyAttachment("servicesinstancerole-s3-policy", {
 
 if (config.services.aws.elasticsearch.enabled) {
     new aws.iam.ServiceLinkedRole("elasticsearch", {
-        awsServiceName: "es.amazonaws.com"
+        awsServiceName: "es.amazonaws.com",
     })
 }
 
@@ -118,9 +121,10 @@ const workerInstanceS3AccessPolicy = new aws.iam.Policy("WorkerInstanceS3Access"
             Action: "s3:GetObject",
             Resource: [
                 s3BucketObjectsArn(s3.configBucket),
-                s3BucketObjectsArn(s3.resultsBucket),
                 s3BucketObjectsArn(s3.datasetsBucket),
                 s3BucketObjectsArn(s3.inputFilesBucket),
+                s3BucketObjectsArn(s3.licensesBucket),
+                s3BucketObjectsArn(s3.resultsBucket),
             ],
         }, {
             Effect: "Allow",
@@ -128,7 +132,8 @@ const workerInstanceS3AccessPolicy = new aws.iam.Policy("WorkerInstanceS3Access"
             Resource: [
                 s3.configBucket.arn,
                 s3.datasetsBucket.arn,
-                s3.inputFilesBucket.arn
+                s3.inputFilesBucket.arn,
+                s3.licensesBucket.arn,
             ],
         }, {
             Effect: "Allow",
@@ -137,8 +142,8 @@ const workerInstanceS3AccessPolicy = new aws.iam.Policy("WorkerInstanceS3Access"
                 "s3:DeleteObject",
             ],
             Resource: [
-                s3BucketObjectsArn(s3.resultsBucket),
                 s3BucketObjectsArn(s3.datasetsBucket),
+                s3BucketObjectsArn(s3.resultsBucket),
             ],
         }],
     },

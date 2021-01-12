@@ -34,6 +34,14 @@ echo 'CO_DEDICATED_WORKER=true' >> /etc/default/codeocean
 # Set the pulumi stack name
 echo 'PULUMI_STACK_NAME="{{pulumiStackName}}"' >> /etc/default/codeocean
 
+# Set Machine Type
+TOKEN=`curl -s -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 60"`
+EC2_INSTANCE_ID=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" 169.254.169.254/latest/meta-data/instance-id)
+EC2_AVAIL_ZONE=`curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/placement/availability-zone`
+EC2_REGION="`echo \"$EC2_AVAIL_ZONE\" | sed 's/[a-z]$//'`"
+MACHINE_TYPE=`aws ec2 describe-tags --region $EC2_REGION --filters "Name=resource-id,Values=$EC2_INSTANCE_ID" | jq -r '.Tags[] | select(.Key=="codeocean.com/machine_type") | .Value'`
+echo 'MACHINE_TYPE='$MACHINE_TYPE >> /etc/default/codeocean
+
 systemctl restart codeocean
 
 # Set cloudwatch logs agent conf

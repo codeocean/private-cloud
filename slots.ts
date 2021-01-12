@@ -54,9 +54,13 @@ function getSlotsFromInfo(instanceTypeInfo: AWS.EC2.InstanceTypeInfo, gpu: Boole
     }
 
     let classes : ResourceClass[] = idNamesArray.filter(v => v.slots <= slotsPerWorker!).map((v, _i) => {
+        let desc = `${v.slots * slot.cpu} cores / ${Math.round(slot.memory / 1000 / 1000 / 1000) * v.slots} GB RAM`
+        if (gpu) {
+            desc = `${v.slots} GPUs / ` + desc
+        }
         return {
             id: v.id,
-            description: `${v.slots * slot.cpu} cores / ${Math.round(slot.memory / 1000 / 1000 / 1000) * v.slots} GB RAM`,
+            description: desc,
             name: v.name,
             order: _i + 1,
             resource: {

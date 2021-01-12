@@ -28,6 +28,7 @@
 	"Storage": {
 		"Region": "{{config.aws.region}}",
 		"Bucket": "{{buckets.results}}",
+		"LicenseBucket": "{{buckets.licenses}}",
 		"DatasetsBucket": "{{buckets.datasets}}",
 		"InputBucket": "{{buckets.inputfiles}}"
 	},
@@ -59,6 +60,7 @@
 		"InstallerServiceHost": "http://wapi.svc:8201",
 		"JobServiceHost": "http://wapi.svc:8201",
 		"LanguageServiceHost": "http://wapi.svc:8201",
+		"MachineServiceHost": "http://wapi.svc:8201",
 		"RunConfigurationServiceHost": "http://wapi.svc:8201",
 		"UserServiceHost": "http://wapi.svc:8201",
 		"WorkspaceServiceHost": "http://wapi.svc:8201"
@@ -77,6 +79,11 @@
 	"S3fS": {
 		"DockerImage": "524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/s3fs:2020-10-22-4d36418"
 	},
+	{{#if config.flexlm.enabled}}
+	"FlexLM": {
+		"ServiceHost": "flexlm.svc"
+	},
+	{{/if}}
 	"Slot": {
 		"CPU": {{slotsConfig.general.slot.cpu}},
 		"Memory": {{slotsConfig.general.slot.memory}}

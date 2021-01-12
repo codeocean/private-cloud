@@ -221,6 +221,13 @@ DedicatedMachines:
     - t3.large
     - t3.xlarge
     - t3.2xlarge
+    - t3a.nano
+    - t3a.micro
+    - t3a.small
+    - t3a.medium
+    - t3a.large
+    - t3a.xlarge
+    - t3a.2xlarge
     - m4.large
     - m4.xlarge
     - m4.2xlarge
@@ -235,6 +242,14 @@ DedicatedMachines:
     - m5.12xlarge
     - m5.16xlarge
     - m5.24xlarge
+    - m5a.large
+    - m5a.xlarge
+    - m5a.2xlarge
+    - m5a.4xlarge
+    - m5a.8xlarge
+    - m5a.12xlarge
+    - m5a.16xlarge
+    - m5a.24xlarge
     - m5n.large
     - m5n.xlarge
     - m5n.2xlarge
@@ -243,6 +258,12 @@ DedicatedMachines:
     - m5n.12xlarge
     - m5n.16xlarge
     - m5n.24xlarge
+    - m5zn.large
+    - m5zn.xlarge
+    - m5zn.2xlarge
+    - m5zn.3xlarge
+    - m5zn.6xlarge
+    - m5zn.12xlarge
     - c4.large
     - c4.xlarge
     - c4.2xlarge
@@ -256,12 +277,19 @@ DedicatedMachines:
     - c5.12xlarge
     - c5.18xlarge
     - c5.24xlarge
+    - c5a.large
+    - c5a.xlarge
+    - c5a.2xlarge
+    - c5a.4xlarge
+    - c5a.8xlarge
+    - c5a.12xlarge
+    - c5a.18xlarge
+    - c5a.24xlarge
     - c5n.large
     - c5n.xlarge
     - c5n.2xlarge
     - c5n.4xlarge
     - c5n.9xlarge
-    - c5n.12xlarge
     - c5n.18xlarge
     - r4.large
     - r4.xlarge
@@ -277,6 +305,22 @@ DedicatedMachines:
     - r5.12xlarge
     - r5.16xlarge
     - r5.24xlarge
+    - r5a.large
+    - r5a.xlarge
+    - r5a.2xlarge
+    - r5a.4xlarge
+    - r5a.8xlarge
+    - r5a.12xlarge
+    - r5a.16xlarge
+    - r5a.24xlarge
+    - r5b.large
+    - r5b.xlarge
+    - r5b.2xlarge
+    - r5b.4xlarge
+    - r5b.8xlarge
+    - r5b.12xlarge
+    - r5b.16xlarge
+    - r5b.24xlarge
     - r5n.large
     - r5n.xlarge
     - r5n.2xlarge
@@ -285,10 +329,29 @@ DedicatedMachines:
     - r5n.12xlarge
     - r5n.16xlarge
     - r5n.24xlarge
+    - x1.16xlarge
+    - x1.32xlarge
+    - x1e.xlarge
+    - x1e.2xlarge
+    - x1e.4xlarge
+    - x1e.8xlarge
+    - x1e.16xlarge
+    - x1e.32xlarge
+    - p2.xlarge
+    - p2.8xlarge
+    - p2.16xlarge
+    - p3.2xlarge
+    - p3.8xlarge
+    - p3.16xlarge
+    - p3dn.24xlarge
+    - p4d.24xlarge
   RecommendedInstanceTypes:
     - r5.8xlarge
     - r5.16xlarge
     - r5.24xlarge
+    - p3.2xlarge
+    - p3.8xlarge
+    - p3.16xlarge
 Features:
   DisableAnalytics: false
   {{#unless config.features.enableIntercom}}
@@ -300,7 +363,7 @@ Features:
   Onboarding: {{config.features.onboarding}}
   {{/if}}
   SlotScheduling: true
-  DedicatedMachines: false
+  DedicatedMachines: true
   {{#if config.features.useRInstallPackages}}
   UseRInstallPackages: true
   {{/if}}

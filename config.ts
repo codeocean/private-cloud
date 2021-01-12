@@ -1,4 +1,5 @@
 import * as pulumi from "@pulumi/pulumi"
+import * as AWS from "aws-sdk"
 
 // Latest released Code Ocean Enterprise AMIs per region
 export interface AMIConfig {
@@ -68,6 +69,12 @@ interface GitProvidersConfig {
     github: {
         org: string,
     },
+}
+
+interface FlexLMConfig {
+    enabled?: boolean,
+    macAddress?: string,
+    hostname?: string,
 }
 
 interface RedisConfig {
@@ -146,8 +153,8 @@ export const stackname = pulumi.getStack()
 export const deploymentName = `codeocean-${project}-${stackname}`
 
 export const version: VersionConfig = {
-    label: "Private and external datasets",
-    version: "0.9.3",
+    label: "Dedicated machines and Matlab support",
+    version: "0.10.0",
 }
 
 export const deployment: DeploymentConfig = {
@@ -157,6 +164,11 @@ export const deployment: DeploymentConfig = {
 export const aws: AWSConfig = {
     keyPair: config.require("aws.keyPair"),
     region: awsConfig.require("region"),
+}
+
+// Make sure aws-sdk has region configured either from env or config
+if (!AWS.config.region) {
+    AWS.config.region = aws.region
 }
 
 export const vpc = config.getObject<VpcConfig>("vpc")
@@ -169,6 +181,8 @@ export const domains: DomainConfig = {
 }
 
 export const gitProviders = config.getObject<GitProvidersConfig>("gitProviders")
+
+export const flexlm = config.getObject<FlexLMConfig>("flexlm")
 
 export const services: ServicesConfig = {
     registryHost: deployment.singleInstance ? "localhost:5000" : `registry.${config.require("domains.app")}`,
@@ -237,12 +251,12 @@ export const features = config.getObject<FeaturesConfig>("features")
 
 export const ami: AMIConfig = {
     services: {
-        "us-east-1": config.get("services.ami") || "ami-0aee811ed7a6312b2",
-        "eu-central-1": config.get("services.ami") || "ami-0a169eaaec47711d4",
+        "us-east-1": config.get("services.ami") || "ami-01c4502ed25955899",
+        "eu-central-1": config.get("services.ami") || "ami-0f9182d742f37c8b0",
     },
     worker: {
-        "us-east-1": config.get("workers.ami") || "ami-075781814ae5ccfc8",
-        "eu-central-1": config.get("workers.ami") || "ami-0e91d7a29207dd69a",
+        "us-east-1": config.get("workers.ami") || "ami-0d18974955cca4b22",
+        "eu-central-1": config.get("workers.ami") || "ami-08008c0b176ff0872",
     },
 }
 

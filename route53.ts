@@ -91,3 +91,11 @@ new aws.route53.Record("wapi", {
     type: aws.route53.RecordTypes.A,
     zoneId: servicesZone.zoneId,
 })
+
+new aws.route53.Record("flexlm", {
+    name: "flexlm.svc",
+    records: [ec2.servicesInstance.privateIp],
+    ttl: 60,
+    type: aws.route53.RecordTypes.A,
+    zoneId: servicesZone.zoneId,
+})

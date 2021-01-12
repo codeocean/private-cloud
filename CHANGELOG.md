@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+## 0.10.0 (2021-01-12)
+
+- Ability to select unique EC2 machines for computations including GPU support
+- Unification of Datasets and Results UI
+- Bug fixes and performance improvements
+
 ## 0.9.3 (2020-12-30)
 
 - Fix AWS region configuration when using aws-sdk for Node.js

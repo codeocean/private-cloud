@@ -211,6 +211,16 @@ new aws.ec2.SecurityGroupRule("wapi-from-workers", {
     description: "wapi from workers",
 })
 
+new aws.ec2.SecurityGroupRule("flexlm-from-workers", {
+    type: "ingress",
+    protocol: "tcp",
+    fromPort: 27000,
+    toPort: 27002,
+    securityGroupId: sgServices.id,
+    sourceSecurityGroupId: sgWorkers.id,
+    description: "flexlm from workers",
+})
+
 new aws.ec2.SecurityGroupRule("registry-from-workers", {
     type: "ingress",
     protocol: "tcp",

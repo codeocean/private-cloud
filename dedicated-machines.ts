@@ -135,6 +135,7 @@ pulumi.all([accountId, vpc.vpc.privateSubnets]).apply(([accountId, subnets]) => 
                             "role",
                             "codeocean.com/user",
                             "codeocean.com/capsule",
+                            "codeocean.com/machine_type",
                         ],
                     },
                 },
