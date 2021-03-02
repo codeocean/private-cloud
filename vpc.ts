@@ -79,6 +79,12 @@ export const sgServices = new aws.ec2.SecurityGroup("services", {
         description: "cw-proxy",
     }, {
         protocol: "tcp",
+        fromPort: 8120,
+        toPort: 8120,
+        securityGroups: [sgExternal.id],
+        description: "codeocean-assets",
+    }, {
+        protocol: "tcp",
         fromPort: 8504,
         toPort: 8504,
         securityGroups: [sgExternal.id],

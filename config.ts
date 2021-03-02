@@ -153,8 +153,8 @@ export const stackname = pulumi.getStack()
 export const deploymentName = `codeocean-${project}-${stackname}`
 
 export const version: VersionConfig = {
-    label: "Dedicated machines and Matlab support",
-    version: "0.10.0",
+    label: "Capsule roles & permissions",
+    version: "0.11.0",
 }
 
 export const deployment: DeploymentConfig = {
@@ -251,12 +251,12 @@ export const features = config.getObject<FeaturesConfig>("features")
 
 export const ami: AMIConfig = {
     services: {
-        "us-east-1": config.get("services.ami") || "ami-01c4502ed25955899",
-        "eu-central-1": config.get("services.ami") || "ami-0f9182d742f37c8b0",
+        "us-east-1": config.get("services.ami") || "ami-095601e49d9932b4e",
+        "eu-central-1": config.get("services.ami") || "ami-00ba1b5e8bcc1f915",
     },
     worker: {
-        "us-east-1": config.get("workers.ami") || "ami-0d18974955cca4b22",
-        "eu-central-1": config.get("workers.ami") || "ami-08008c0b176ff0872",
+        "us-east-1": config.get("workers.ami") || "ami-00b35e2d746972c44",
+        "eu-central-1": config.get("workers.ami") || "ami-077fab0d121b7628f",
     },
 }
 

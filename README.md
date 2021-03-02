@@ -2,37 +2,50 @@
 
 ## Deployment Prerequisites
 
-1. An AWS account. The Code Ocean Enterprise AMIs need to be shared with this account.
+1. An AWS account. Please contact our support to share the Code Ocean AMIs with this account.
 1. Admin access to the AWS account to deploy.
-1. Choice of region.
-1. A choice of hosting domain (normally, `codeocean.[acmecorp].com`).
+1. AWS region. We currently support `us-east-1` and `eu-central-1`.
+1. A choice of hosting domain.
 
-## EC2 Key Pair
+    The deployment project will create a new AWS Route53 public hosted zone to host the Code Ocean deployment.
+    This will be a `codeocean` subdomain of the parent domain, e.g. `codeocean.acmecorp.com`.
+    During deployment you will need to configure the parent domain (e.g. `acmecorp.com`) to delegate the `codeocean` subdomain to Route53 by adding an NS record in the parent domain, so access to configure DNS on the parent domain is required.
+1. Create an S3 bucket in your AWS account to store Pulumi infrastructure state, e.g. `s3://codeocean-[acmecorp]-pulumi-backend`.
 
-Create a key pair (normally, `codeocean`). Store the private key to be able to SSH into EC2 machines.
+    We recommend to create the S3 bucket with server side encryption, versioning and access logs enabled.
+    You can read more about Pulumi backends [here](https://www.pulumi.com/docs/intro/concepts/state/).
+1. Create an EC2 key pair (normally, `codeocean`). Store the private key to be able to SSH into EC2 machines.
 
 ## Pulumi Setup
 
-1. Install Pulumi cli: https://www.pulumi.com/docs/get-started/install/
-1. Please make a choice of the pulumi backend you'll be working with to store infrastructure state:
-https://www.pulumi.com/docs/intro/concepts/state/
-1. Install Node.js v14, eg `brew install node@14`
-1. Clone this repository: `git clone https://github.com/codeocean/private-cloud.git && cd private-cloud`
-1. Install npm packages: `npm ci`
-1. Login to pulumi with the backend of choice: `pulumi login [options]`
+**Note**: We recommend to set up an EC2 instance in your AWS account from which you will set up Pulumi and perform Code Ocean deployments.
+We find that this gives the best experience with Pulumi.
+
+1. Install Pulumi and Node.js. See instructions [here](./docs/pulumi.md).
+1. Clone this repository:
+    ```
+    git clone https://github.com/codeocean/private-cloud.git && cd private-cloud
+    ```
+1. Install npm packages:
+    ```
+    npm ci
+    ```
+1. Login to your Pulumi S3 backend (make sure to replace the bucket name with the bucket you created):
+    ```
+    pulumi login --cloud-url s3://codeocean-[acmecorp]-pulumi-backend
+    ```
 1. Create a deployment stack:
     ```
-    pulumi stack init [acmecorp]
+    pulumi stack init
     ```
 
 ## Configuration
 
 Configure required variables:
 ```
-pulumi config set aws:region [region, eg `us-east-1`]
+pulumi config set aws:region [region, e.g. `us-east-1`]
 pulumi config set aws.keyPair [key pair name, see above]
-pulumi config set auth.allowedDomains [allowed signup domain list, eg `acmecorp.com`]
-pulumi config set domains.app [hosting domain, eg `codeocean.[acmecorp].com`]
+pulumi config set domains.app [hosting domain, e.g. `codeocean.acmecorp.com`]
 ```
 
 To configure Google OAuth2 client credentials:
@@ -67,26 +80,33 @@ pulumi config set --path gitProviders.github.org [org name]
 pulumi up
 ```
 
-## Domain Setup
+You will be prompted to enter a passphrase to protect config/secrets.
+Choose a meaningful password and store it safely. You will need it every time you deploy.
 
-Pulumi will create a new Route53 public hosted zone (eg `codeocean.[acmecorp].com`).
-Use the NS DNS record in the new hosted zone to configure the parent domain (eg `[acmecorp].com`) to
-delegate the subdomain to Route53.
+**Important**: The deployment provisions an SSL certificate that is validated with a DNS record.
+It then waits until the certificate is validated by AWS.
+Please make sure to complete the following DNS setup, otherwise the deployment cannot complete.
 
-Example:
-```
-Name = codeocean.[acmecorp].com
-Type = NS
-Value =
-ns-1923.awsdns-48.co.uk.
-ns-366.awsdns-45.com.
-ns-1437.awsdns-51.org.
-ns-673.awsdns-20.net.
-```
+### Domain Setup
 
-If you update an existing NS record in your parent domain, the new NS record could take time to propagate.
-This could fail the provisioning of an SSL certificate that is part of the deployment, as it relies on
-DNS verification, and in turn, would fail the deployment.
+`pulumi up` will create a new Route53 public hosted zone (e.g. `codeocean.acmecorp.com`).
+Use the NS DNS record in the new hosted zone to configure the parent domain (e.g. `acmecorp.com`) to delegate the subdomain to Route53.
+
+1. In your AWS account console, go to Route53 Hosted Zones and find your new public hosted zone (e.g. codeocean.acmecorp.com) then select View Details.
+1. Copy the value of the NS record. Here's an example of such NS record:
+    ```
+    Name = codeocean.acmecorp.com
+    Type = NS
+    Value =
+    ns-1923.awsdns-48.co.uk.
+    ns-366.awsdns-45.com.
+    ns-1437.awsdns-51.org.
+    ns-673.awsdns-20.net.
+    ```
+1. Add an NS record in your parent domain (e.g. `acmecorp.com`) with the copied value to delegate the subdomain to Route53.
+
+**Note**: If you update an existing NS record in your parent domain, the new NS record could take time to propagate.
+This could fail the provisioning of an SSL certificate that is part of the deployment, as it relies on DNS verification, and in turn, would fail the deployment.
 Wait until the DNS change propagates and run the deployment again with `pulumi up`.
 
 ## Site administrator signup

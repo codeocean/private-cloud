@@ -351,7 +351,7 @@ new aws.cloudwatch.MetricAlarm("services-unhealthy-host", {
 // Internal Server Errors
 new aws.cloudwatch.LogMetricFilter("services-500", {
     logGroupName: pulumi.output(servicesLogGroup).apply(v => v.name),
-    pattern: "[date, time, service, level, source=GIN, status=500, ...]",
+    pattern: "[date, time, service!=cw-proxy, level, source=GIN, status=500, ...]",
     metricTransformation: {
         namespace: "CodeOcean",
         value: "1",
@@ -393,6 +393,61 @@ new aws.cloudwatch.MetricAlarm("internal-server-errors", {
         id: "m2",
         metric: {
             metricName: "Workers_HTTP_500_LogCount",
+            namespace: "CodeOcean",
+            period: 60,
+            stat: "Sum",
+        },
+    }],
+    tags: {
+        deployment: config.deploymentName,
+    },
+})
+
+// Critical level log messages
+new aws.cloudwatch.LogMetricFilter("services-critical", {
+    logGroupName: pulumi.output(servicesLogGroup).apply(v => v.name),
+    pattern: "[date, time, service, level=CRITICAL, ...]",
+    metricTransformation: {
+        namespace: "CodeOcean",
+        value: "1",
+        name: "Services_Critical_LogCount",
+    },
+})
+
+new aws.cloudwatch.LogMetricFilter("workers-critical", {
+    logGroupName: pulumi.output(workersLogGroup).apply(v => v.name),
+    pattern: "[date, time, service, level=CRITICAL, ...]",
+    metricTransformation: {
+        namespace: "CodeOcean",
+        value: "1",
+        name: "Workers_Critical_LogCount",
+    },
+})
+
+new aws.cloudwatch.MetricAlarm("critical-errors", {
+    alarmActions: [sns.alarmsTopic],
+    alarmDescription: "Critical level errors returned by CodeOcean services",
+    comparisonOperator: "GreaterThanThreshold",
+    evaluationPeriods: 1,
+    okActions: [sns.alarmsTopic],
+    threshold: 0,
+    metricQueries: [{
+        expression: "(m1+m2)",
+        id: "e1",
+        label: "Critical Error Count",
+        returnData: true,
+    }, {
+        id: "m1",
+        metric: {
+            metricName: "Services_Critical_LogCount",
+            namespace: "CodeOcean",
+            period: 60,
+            stat: "Sum",
+        },
+    }, {
+        id: "m2",
+        metric: {
+            metricName: "Workers_Critical_LogCount",
             namespace: "CodeOcean",
             period: 60,
             stat: "Sum",

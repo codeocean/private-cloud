@@ -16,3 +16,14 @@ Install Git:
 ```
 sudo yum install -y git
 ```
+
+## macOS
+
+Install Pulumi:
+```
+brew install pulumi
+```
+Install Node.js:
+```
+brew install node@14
+```

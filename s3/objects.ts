@@ -18,14 +18,12 @@ const accountId = pulumi.output(aws.getCallerIdentity()).accountId
 // typing, bascially everything here must be a string
 const context = pulumi.all([
     accountId,
-    s3.assetsBucket.bucket,
     s3.datasetsBucket.bucket,
     s3.inputFilesBucket.bucket,
     s3.licensesBucket.bucket,
     s3.publicBucket.bucket,
     s3.resultsBucket.bucket,
     s3.tempBucket.bucket,
-    s3.templatesBucket.bucket,
     dedicatedMachines.launchTemplate.id,
     dedicatedMachines.launchTemplate.latestVersion.apply(v => v.toString()),
     config.auth.builtin.reCaptchaApiKey,
@@ -48,14 +46,12 @@ const context = pulumi.all([
     elasticsearch.searchDomain?.endpoint,
 ]).apply(([
     accountId_,
-    assetsBucketName,
     datasetsBucketName,
     inputfilesBucketName,
     licensesBucketName,
     publicBucketName,
     resultsBucketName,
     tempBucketName,
-    templatesBucketName,
     dedicatedMachineLaunchTemplateID,
     dedicatedMachineLaunchTemplateVersion,
     reCaptchaApiKey,
@@ -82,14 +78,12 @@ const context = pulumi.all([
     return {
         config,
         buckets: {
-            assets: assetsBucketName,
             datasets: datasetsBucketName,
             inputfiles: inputfilesBucketName,
             licenses: licensesBucketName,
             public: publicBucketName,
             results: resultsBucketName,
             temp: tempBucketName,
-            templates: templatesBucketName,
         },
         dedicatedMachineLaunchTemplateID,
         dedicatedMachineLaunchTemplateVersion,
@@ -146,6 +140,5 @@ const context = pulumi.all([
     }
 })
 
-s3.assetsBucket.upload({ cacheControl: "max-age=86400", context })
 s3.configBucket.upload({ render: true, context })
-s3.templatesBucket.upload({ context })
+

@@ -36,7 +36,6 @@ const servicesInstanceS3AccessPolicy = new aws.iam.Policy("ServicesInstanceS3Acc
             Effect: "Allow",
             Action: "s3:GetObject",
             Resource: [
-                s3BucketObjectsArn(s3.assetsBucket),
                 s3BucketObjectsArn(s3.configBucket),
                 s3BucketObjectsArn(s3.datasetsBucket),
                 s3BucketObjectsArn(s3.inputFilesBucket),
@@ -44,7 +43,6 @@ const servicesInstanceS3AccessPolicy = new aws.iam.Policy("ServicesInstanceS3Acc
                 s3BucketObjectsArn(s3.publicBucket),
                 s3BucketObjectsArn(s3.resultsBucket),
                 s3BucketObjectsArn(s3.tempBucket),
-                s3BucketObjectsArn(s3.templatesBucket),
             ],
         }, {
             Effect: "Allow",
@@ -57,7 +55,6 @@ const servicesInstanceS3AccessPolicy = new aws.iam.Policy("ServicesInstanceS3Acc
                 s3.publicBucket.arn,
                 s3.resultsBucket.arn,
                 s3.tempBucket.arn,
-                s3.templatesBucket.arn,
             ],
         }, {
             Effect: "Allow",

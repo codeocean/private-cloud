@@ -1,6 +1,6 @@
 # Upgrading Code Ocean
 
-1. Make sure you have Pulumi CLI and NodeJS installed as described [here](https://github.com/codeocean/private-cloud#pulumi-setup).
+1. Make sure you have Pulumi CLI and Node.js installed as described [here](./pulumi.md).
 1. Clone the deployment project repo:
     ```
     git clone https://github.com/codeocean/private-cloud
@@ -21,7 +21,7 @@
     ```
 1. Login to your Pulumi backend:
     ```
-    pulumi login --cloud-url s3://[codeocean-pulumi-backend]
+    pulumi login --cloud-url s3://[codeocean-acmecorp-pulumi-backend]
     ```
 1. Prepare the Pulumi passphrase:
     ```

@@ -3,10 +3,12 @@ Version:
   Label: "{{config.version.label}}"
 General:
   APIBasePath: /api
+  PublicAPIURL: https://codeocean.com/api
   BaseURL: https://{{config.domains.app}}
   FilesURITemplate: https://{{config.domains.files}}/files/{owner_id}/{capsule_id}{+path}
   DatasetsURITemplate: https://{{config.domains.files}}/datasets/{owner_id}/{dataset_id}{+path}
   InputURITemplate: https://{{config.domains.files}}/input/{owner_id}/{capsule_id}{+path}
+  AssetsBaseURL: https://{{config.domains.app}}/a
   GiteaProxyBaseURL: https://{{config.domains.git}}
   NetworkType: compose
 NewUser:
@@ -75,13 +77,11 @@ AWS:
   S3:
     BaseURL: https://{{config.domains.app}}/s3
     Buckets:
-      Assets: {{buckets.assets}}
       Datasets: {{buckets.datasets}}
       InputFiles: {{buckets.inputfiles}}
       Public: {{buckets.public}}
       Results: {{buckets.results}}
       Temp: {{buckets.temp}}
-      Templates: {{buckets.templates}}
   EC2:
     DedicatedMachineLaunchTemplate: {{dedicatedMachineLaunchTemplateID}}
     DedicatedMachineLaunchTemplateVersion: {{dedicatedMachineLaunchTemplateVersion}}
@@ -367,7 +367,7 @@ Features:
   {{#if config.features.useRInstallPackages}}
   UseRInstallPackages: true
   {{/if}}
-  NonAdminListUsers: true
+  EnterprisePermissions: true
   Datasets: true
   CapsuleGUI: true
   RunOnlyCapsules: true
@@ -376,6 +376,9 @@ Features:
   {{/if}}
   AlwaysGitIgnoreData: true
   CapsuleCredentials: true
+  VPCDocumentation: true
+  VPCAdministration: true
+  DisableLicences: true
 Datasets:
   CacheTTLDays: 30
 Input:
@@ -438,8 +441,6 @@ Services:
     URL: http://lang:8083
   layout:
     URL: http://layout:8118
-  license:
-    URL: http://lice:8097
   machine:
     URL: http://mach:8116
   maintenance:

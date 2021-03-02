@@ -97,6 +97,18 @@ const s3ProxyTargetGroup = new aws.lb.TargetGroup("s3-proxy", {
     },
 })
 
+const assetsTargetGroup = new aws.lb.TargetGroup("codeocean-assets", {
+    healthCheck: {
+        path: "/health",
+    },
+    port: 8120,
+    protocol: "HTTP",
+    vpcId: vpc.vpc.id,
+    tags: {
+        deployment: config.deploymentName,
+    },
+})
+
 new aws.lb.Listener("external-http", {
     defaultActions: [{
         redirect: {
@@ -283,9 +295,30 @@ new aws.lb.ListenerRule("s3-proxy", {
     deleteBeforeReplace: true,
 })
 
+new aws.lb.ListenerRule("codeocean-assets", {
+    actions: [{
+        type: "forward",
+        targetGroupArn: assetsTargetGroup.arn,
+    }],
+    conditions: [{
+        pathPattern: {
+            values: ["/a/*"],
+        },
+    }],
+    listenerArn: listener.arn,
+    priority: 1100,
+}, {
+    deleteBeforeReplace: true,
+})
+
 new aws.lb.TargetGroupAttachment("s3-proxy", {
     targetId: ec2.servicesInstance.id,
     targetGroupArn: s3ProxyTargetGroup.arn,
+})
+
+new aws.lb.TargetGroupAttachment("codeocean-assets", {
+    targetId: ec2.servicesInstance.id,
+    targetGroupArn: assetsTargetGroup.arn,
 })
 
 new aws.lb.TargetGroupAttachment("git-proxy", {

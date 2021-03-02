@@ -59,13 +59,21 @@ export const servicesInstance = new aws.ec2.Instance("services", {
     }),
     vpcSecurityGroupIds: [vpc.sgServices.id],
 }, {
-    dependsOn: [
+    dependsOn: pulumi.all([
+        vpc.vpc.natGateways,
+        vpc.vpc.internetGateway,
+    ]).apply(([
+        natGateways,
+        internetGateway,
+    ]) => [
+        ...natGateways,
+        internetGateway!,
         efs.capsuleCache,
         efs.datasets,
         s3.configBucket,
         cloudwatch.instancesLogGroup,
         cloudwatch.servicesLogGroup,
-    ],
+    ]),
     // XXX Terraform & Pulumi have an issue with mixing ebsBlockDevices and VolumeAttachment which will
     // cause them to recreate the instance on each update, which we sadly do here. So we ignore
     // changes on ebsBlockDevices to workaround this, until they will hopefully fix this limitation

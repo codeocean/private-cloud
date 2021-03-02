@@ -1,6 +1,19 @@
 CHANGELOG
 =========
 
+## 0.11.0 (2021-03-02)
+
+- Improved share functionality of capsules for security and simplicity with user permission management
+- Assets Management: Ability to create a dataset directly from Cloud Workstation
+- Assets Management: Provide users with ability to see enhanced  information about the dataset when attaching a dataset to a capsule
+- Assets Management: Ability to rename the mounting point (folder) name under which the a dataset appears in the capsule
+- UI fixes to address GPU based dedicated machines
+- Updated documentation and in product help
+- Ability to sort capsules by creation date for ease of discoverability
+- Monitoring and alerting for cases where Git repo size is increased past Git limitation
+- In place expansion for large text fields
+- Bug fixes and performance improvements
+
 ## 0.10.0 (2021-01-12)
 
 - Ability to select unique EC2 machines for computations including GPU support

@@ -95,6 +95,12 @@ pulumi.all([accountId, vpc.vpc.privateSubnets]).apply(([accountId, subnets]) => 
             Statement: [{
                 Effect: "Allow",
                 Action: [
+                    "pricing:GetProducts",
+                ],
+                Resource: "*",
+            }, {
+                Effect: "Allow",
+                Action: [
                     "ec2:DescribeInstances",
                     "ec2:DescribeInstanceTypes",
                 ],

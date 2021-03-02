@@ -62,11 +62,6 @@ export const accessLogsBucketPolicy = new aws.s3.BucketPolicy("access-logs-bucke
     },
 })
 
-export const assetsBucket = new Bucket("assets", {
-    accessLogsBucket,
-    allowVpcRead: true,
-})
-
 export const configBucket = new Bucket("config", { accessLogsBucket })
 
 export const datasetsBucket = new Bucket("datasets", {
@@ -165,5 +160,3 @@ export const tempBucket = new Bucket("temp", {
         forceDestroy: true,
     },
 })
-
-export const templatesBucket = new Bucket("templates", { accessLogsBucket })
