@@ -21,6 +21,8 @@
 | aws.elasticsearch.enabled | Enable managed AWS Elasticsearch | `false` | `boolean` | `false` | |
 | aws.elasticsearch.instanceType | AWS Elasticsearch instance type | `false` | `string` | `t3.small.elasticsearch` | |
 | aws.elasticsearch.multiAZ | Enable AWS Elasticsearch Multi-AZ | `false` | `boolean` | `false` | |
+| aws.analyticsdb.instanceClass | Analytics DB RDS instance class | `false` | `string` | `db.t3.micro` | |
+| aws.analyticsdb.multiAZ | Enable Analytics DB Multi-AZ | `false` | `boolean` | `false` | |
 | features.capsuleCache | Enable per-capsule cache (alpha) | `false` | `boolean` | `false` | |
 | features.disablePackageSuggestions | Disable package suggestion in capsule environment editor | `false` | `boolean` | `false` | |
 | features.enableIntercom | Enable Intercom support integration | `false` | `boolean` | `false` | |

@@ -1,6 +1,18 @@
 CHANGELOG
 =========
 
+## 0.12.0 (2021-03-15)
+
+- Ability to see and utilize unique Code-Ocean built Example capsules available to all users in their dashboard 
+- Added support for Mathworks acccount configuration & Matlab Online
+- New in-house pipeline for analytics data
+- Management console for administrators updated with added functionality to support cloud formation move
+- Management console UI new look and feel 
+- Dedicated machines - Spot instance selection functionality added
+- Dedicated machines - Machine costs added for dedicated machines
+- Most recent results now show in the Results section in the IDE
+- Bug fixes and performance improvements
+
 ## 0.11.0 (2021-03-02)
 
 - Improved share functionality of capsules for security and simplicity with user permission management

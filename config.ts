@@ -89,11 +89,17 @@ interface ElasticsearchConfig {
     multiAZ?: boolean,
 }
 
+interface AnalyticsDBConfig {
+    instanceClass: string,
+    multiAZ?: boolean,
+}
+
 interface ServicesConfig {
     registryHost: string,
     aws: {
         redis: RedisConfig,
         elasticsearch: ElasticsearchConfig,
+        analyticsdb: AnalyticsDBConfig,
     },
     segment: {
         backend: {
@@ -153,8 +159,8 @@ export const stackname = pulumi.getStack()
 export const deploymentName = `codeocean-${project}-${stackname}`
 
 export const version: VersionConfig = {
-    label: "Capsule roles & permissions",
-    version: "0.11.0",
+    label: "Matlab Online & reproducible runs",
+    version: "0.12.0",
 }
 
 export const deployment: DeploymentConfig = {
@@ -192,6 +198,9 @@ export const services: ServicesConfig = {
         }),
         elasticsearch: config.getObjectWithDefaults<ElasticsearchConfig>("aws.elasticsearch", {
             instanceType: "t3.small.elasticsearch",
+        }),
+        analyticsdb: config.getObjectWithDefaults<AnalyticsDBConfig>("aws.analyticsdb", {
+            instanceClass: "db.t3.micro",
         }),
     },
     segment: {
@@ -251,12 +260,12 @@ export const features = config.getObject<FeaturesConfig>("features")
 
 export const ami: AMIConfig = {
     services: {
-        "us-east-1": config.get("services.ami") || "ami-095601e49d9932b4e",
-        "eu-central-1": config.get("services.ami") || "ami-00ba1b5e8bcc1f915",
+        "us-east-1": config.get("services.ami") || "ami-01f3881e54024d855",
+        "eu-central-1": config.get("services.ami") || "ami-045376d7897854b34",
     },
     worker: {
-        "us-east-1": config.get("workers.ami") || "ami-00b35e2d746972c44",
-        "eu-central-1": config.get("workers.ami") || "ami-077fab0d121b7628f",
+        "us-east-1": config.get("workers.ami") || "ami-0a0b91d550642a72c",
+        "eu-central-1": config.get("workers.ami") || "ami-063e93a48b0f3b8f7",
     },
 }
 

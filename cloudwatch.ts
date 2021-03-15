@@ -10,6 +10,7 @@ import * as config from "./config"
 import * as ebs from "./ebs"
 import * as ec2 from "./ec2"
 import * as lb from "./lb"
+import * as rds from "./rds"
 import * as slots from "./slots"
 import * as sns from "./sns"
 
@@ -501,6 +502,50 @@ workersVolumeHighUsageAlarm({
     threshold: 90,
     volumeName: "worker",
 })
+
+// RDS
+
+new aws.cloudwatch.MetricAlarm("analyticsdb-storage", {
+    alarmActions: [sns.alarmsTopic],
+    alarmDescription: "Free storage space in Analytics RDS DB is low",
+    comparisonOperator: "LessThanThreshold",
+    datapointsToAlarm: 10,
+    dimensions: {
+        DBInstanceIdentifier: rds.analytics.id,
+    },
+    evaluationPeriods: 10,
+    metricName: "FreeStorageSpace",
+    namespace: "AWS/RDS",
+    okActions: [sns.alarmsTopic],
+    period: 60,
+    statistic: "Maximum",
+    tags: {
+        deployment: config.deploymentName,
+    },
+    threshold: 2048,
+})
+
+new aws.cloudwatch.MetricAlarm("analyticsdb-cpu", {
+    alarmActions: [sns.alarmsTopic],
+    alarmDescription: "Analytics RDS DB CPU usage is high",
+    comparisonOperator: "GreaterThanThreshold",
+    datapointsToAlarm: 10,
+    dimensions: {
+        DBInstanceIdentifier: rds.analytics.id,
+    },
+    evaluationPeriods: 10,
+    metricName: "CPUUtilization",
+    namespace: "AWS/RDS",
+    okActions: [sns.alarmsTopic],
+    period: 60,
+    statistic: "Maximum",
+    tags: {
+        deployment: config.deploymentName,
+    },
+    threshold: 90,
+})
+
+// Dashboard
 
 new aws.cloudwatch.Dashboard("codeocean-dashboard", {
     dashboardName: `codeocean-${config.stackname}`,

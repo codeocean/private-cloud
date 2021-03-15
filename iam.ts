@@ -1,5 +1,6 @@
 import * as aws from "@pulumi/aws"
 import * as pulumi from "@pulumi/pulumi"
+import * as AWS from "aws-sdk"
 
 import * as config from "./config"
 import * as s3 from "./s3"
@@ -84,6 +85,16 @@ if (config.services.aws.elasticsearch.enabled) {
         awsServiceName: "es.amazonaws.com",
     })
 }
+
+new AWS.IAM({region: config.aws.region}).listRoles({
+    PathPrefix: "/aws-service-role/rds.amazonaws.com/",
+}).promise().then(response => {
+    if (response.Roles.length == 0) {
+        new aws.iam.ServiceLinkedRole("analyticsdb", {
+            awsServiceName: "rds.amazonaws.com",
+        })
+    }
+})
 
 // Workers
 

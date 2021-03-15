@@ -9,6 +9,7 @@ import * as config from "./config"
 import * as ebs from "./ebs"
 import * as efs from "./efs"
 import * as iam from "./iam"
+import * as rds from "./rds"
 import * as s3 from "./s3"
 import * as vpc from "./vpc"
 
@@ -70,6 +71,7 @@ export const servicesInstance = new aws.ec2.Instance("services", {
         internetGateway!,
         efs.capsuleCache,
         efs.datasets,
+        rds.analytics,
         s3.configBucket,
         cloudwatch.instancesLogGroup,
         cloudwatch.servicesLogGroup,

@@ -74,6 +74,11 @@ To configure GitHub organization support:
 pulumi config set --path gitProviders.github.org [org name]
 ```
 
+The following command make sure that all required plugins are installed, and if not installing them :
+```
+pulumi plugin install
+```
+
 ## Deployment
 
 ```
@@ -124,7 +129,7 @@ Go to `https://codeocean.[acmecorp].com/join` to create an admin account.
     Version: 3.8.1, miniconda 4.8.2, jupyterlab 2.1.1
     Source: codeocean/jupyterlab:2.1.1-miniconda4.8.2-python3.8-ubuntu18.04
     Language: Python
-    Machine Type: 0
+    Machine Type: Standard
     Description: Conda makes this environment a great starting point for installing other languages.
     Keywords: Python, JupyterLab, Ubuntu, 18.04
     ```
@@ -134,7 +139,7 @@ Go to `https://codeocean.[acmecorp].com/join` to create an admin account.
     Version: 3.6.3, RStudio 1.2.5019
     Source: codeocean/r-studio:1.2.5019-r3.6.3-ubuntu18.04
     Language: R
-    Machine Type: 0
+    Machine Type: Standard
     Description: R is a language and environment for statistical computing and graphics. RStudio is an integrated development environment for R.
     Keywords: R, RStudio, Ubuntu, 18.04
     ```
@@ -144,7 +149,7 @@ Go to `https://codeocean.[acmecorp].com/join` to create an admin account.
     Version: 3.7.3, miniconda 4.7.10, CUDA 10.1
     Source: registry.codeocean.com/codeocean/miniconda3:4.7.10-cuda10.1-cudnn7-ubuntu18.04
     Language: Python
-    Machine Type: 1
+    Machine Type: GPU
     Description: Includes CUDA 10.1 and cuDNN 7 support. conda makes this a great starting point for installing deep learning frameworks and other languages (including Python 2.7).
     Keywords: Python, GPU, Ubuntu, 18.04
     ```    

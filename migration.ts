@@ -50,7 +50,7 @@ function runMigration(): Promise<never> {
                 CommandId: response.Command!.CommandId!,
                 InstanceId: servicesInstanceId,
                 $waiter: {
-                    delay: 5,
+                    delay: 10,
                     maxAttempts: 60,
                 },
             }).promise().then(response => {

@@ -5,6 +5,7 @@ import * as config from "../config"
 import * as dedicatedMachines from "../dedicated-machines"
 import * as elasticsearch from "../elasticsearch"
 import * as keys from "../keys"
+import * as rds from "../rds"
 import * as redis from "../redis"
 import * as secrets from "../secrets"
 import * as slots from "../slots"
@@ -31,6 +32,7 @@ const context = pulumi.all([
     config.auth.systemAPIKey,
     config.services.segment.backend.apiKey,
     config.services.segment.frontend.apiKey,
+    secrets.analyticsdb.passsword.result,
     secrets.couchdb.adminPassword.result,
     secrets.gitea.adminPassword.result,
     secrets.gitea.commonPassword.result,
@@ -44,6 +46,9 @@ const context = pulumi.all([
     keys.samlCert.certPem,
     redis.replicationGroup?.primaryEndpointAddress,
     elasticsearch.searchDomain?.endpoint,
+    rds.analytics.address,
+    rds.analytics.port.apply(v => v.toString()),
+    rds.analytics.username,
 ]).apply(([
     accountId_,
     datasetsBucketName,
@@ -59,6 +64,7 @@ const context = pulumi.all([
     systemAPIKey,
     segmentBackendApiKey,
     segmentFrontendApiKey,
+    analyticsDbPassword,
     couchdbAdminPassword,
     giteaAdminPassword,
     giteaCommonPassword,
@@ -72,6 +78,9 @@ const context = pulumi.all([
     samlCert,
     redisAddress,
     elasticsearchAddress,
+    analyticsDbAddress,
+    analyticsDbPort,
+    analyticsDbUsername,
 ]) => {
     config.aws.accountId = accountId_
 
@@ -88,6 +97,9 @@ const context = pulumi.all([
         dedicatedMachineLaunchTemplateID,
         dedicatedMachineLaunchTemplateVersion,
         secrets: {
+            analyticsdb: {
+                password: analyticsDbPassword,
+            },
             auth: {
                 builtin: {
                     reCaptchaApiKey: reCaptchaApiKey,
@@ -125,6 +137,11 @@ const context = pulumi.all([
             elasticsearch: {
                 address: elasticsearchAddress,
             },
+            analyticsdb: {
+                host: analyticsDbAddress,
+                port: analyticsDbPort,
+                username: analyticsDbUsername,
+            },
         },
         keys: {
             app: {
@@ -141,4 +158,3 @@ const context = pulumi.all([
 })
 
 s3.configBucket.upload({ render: true, context })
-

@@ -17,6 +17,10 @@ function randomPassword(name: string, args?: random.RandomPasswordArgs): random.
     })
 }
 
+export const analyticsdb = {
+    passsword: randomPassword("analyticsdb-password"),
+}
+
 export const couchdb = {
     adminPassword: randomPassword("couchdb-admin-password"),
 }

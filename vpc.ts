@@ -207,6 +207,19 @@ if (config.services.aws.elasticsearch.enabled) {
     })
 }
 
+export const sgAnalyticsDB = new aws.ec2.SecurityGroup("analyticsdb", {
+    vpcId: vpc.id,
+    ingress: [{
+        protocol: "tcp",
+        fromPort: 5432,
+        toPort: 5432,
+        securityGroups: [
+            sgServices.id,
+        ],
+        description: "Access to analytics db domain from services machine",
+    }],
+})
+
 new aws.ec2.SecurityGroupRule("wapi-from-workers", {
     type: "ingress",
     protocol: "tcp",

@@ -60,3 +60,4 @@
     ```
     pulumi up
     ```
+> Note - During deployment cloudwatch alarms will still fire, you might want to disable them temporarily

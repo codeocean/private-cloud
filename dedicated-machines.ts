@@ -103,6 +103,8 @@ pulumi.all([accountId, vpc.vpc.privateSubnets]).apply(([accountId, subnets]) => 
                 Action: [
                     "ec2:DescribeInstances",
                     "ec2:DescribeInstanceTypes",
+                    "ec2:DescribeSpotInstanceRequests",
+                    "ec2:CancelSpotInstanceRequests"
                 ],
                 Resource: "*",
             }, {
@@ -122,6 +124,7 @@ pulumi.all([accountId, vpc.vpc.privateSubnets]).apply(([accountId, subnets]) => 
                     vpc.sgWorkers.arn,
                     ...subnets.map(subnet => subnet.subnet.arn),
                     `arn:aws:ec2:${config.aws.region}:${accountId}:volume/*`,
+                    `arn:aws:ec2:${config.aws.region}:${accountId}:spot-instances-request/*`,
                 ],
             }, {
                 Effect: "Allow",
@@ -129,6 +132,7 @@ pulumi.all([accountId, vpc.vpc.privateSubnets]).apply(([accountId, subnets]) => 
                 Resource: [
                     `arn:aws:ec2:${config.aws.region}:${accountId}:instance/*`,
                     `arn:aws:ec2:${config.aws.region}:${accountId}:volume/*`,
+                    `arn:aws:ec2:${config.aws.region}:${accountId}:spot-instances-request/*`,
                 ],
                 Condition: {
                     StringEquals: {

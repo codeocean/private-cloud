@@ -140,6 +140,14 @@ Elasticsearch:
   {{else}}
   URL: http://es:9200
   {{/if}}
+AnalyticsDB:
+  Host: {{services.analyticsdb.host}}
+  Port: {{services.analyticsdb.port}}
+  User: {{services.analyticsdb.username}}
+  Password: {{secrets.analyticsdb.password}}
+  SSL: true
+  DBName: codeocean
+  TableName: objects
 WDT:
   DockerImage: 524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/wdt:2019-02-14-b8f978f
   TempDir: wdt_temp
@@ -369,7 +377,6 @@ Features:
   {{/if}}
   EnterprisePermissions: true
   Datasets: true
-  CapsuleGUI: true
   RunOnlyCapsules: true
   {{#if config.features.disablePackageSuggestions}}
   DisablePackageSuggestions: true
@@ -378,7 +385,9 @@ Features:
   CapsuleCredentials: true
   VPCDocumentation: true
   VPCAdministration: true
+  ShowExamples: true
   DisableLicences: true
+  MathworksAccounts: true
 Datasets:
   CacheTTLDays: 30
 Input:
