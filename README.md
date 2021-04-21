@@ -15,6 +15,12 @@
     We recommend to create the S3 bucket with server side encryption, versioning and access logs enabled.
     You can read more about Pulumi backends [here](https://www.pulumi.com/docs/intro/concepts/state/).
 1. Create an EC2 key pair (normally, `codeocean`). Store the private key to be able to SSH into EC2 machines.
+1. Create AWS IAM service linked roles for RDS and Elasticsearch (if using managed ES):
+    ```
+    aws iam create-service-linked-role --aws-service-name rds.amazonaws.com
+    aws iam create-service-linked-role --aws-service-name es.amazonaws.com
+    ```
+    Please note that the above commands might return an error if the roles already exist in the AWS account. This can be ignored.
 
 ## Pulumi Setup
 

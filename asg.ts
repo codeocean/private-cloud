@@ -57,12 +57,14 @@ const workersLaunchTemplate = new aws.ec2.LaunchTemplate("workers", {
         s3.configBucket.bucket,
         efs.capsuleCache?.id,
         efs.datasets.id,
+        config.workers.sharedVolume,
         config.stackname,
         config.workers.general.useInstanceStore,
     ]).apply(([
         configBucketName,
         capsuleCacheEfsId,
         datasetsEfsId,
+        sharedVolume,
         pulumiStackName,
         useInstanceStore,
     ]) => {
@@ -72,6 +74,7 @@ const workersLaunchTemplate = new aws.ec2.LaunchTemplate("workers", {
             configBucketName,
             capsuleCacheEfsId,
             datasetsEfsId,
+            sharedVolume,
             pulumiStackName,
             machineType,
             useInstanceStore,

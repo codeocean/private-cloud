@@ -70,11 +70,13 @@ export const launchTemplate = new aws.ec2.LaunchTemplate("dedicated-worker", {
         s3.configBucket.bucket,
         efs.capsuleCache?.id,
         efs.datasets.id,
+        config.workers.sharedVolume,
         config.stackname,
     ]).apply(([
         configBucketName,
         capsuleCacheEfsId,
         datasetsEfsId,
+        sharedVolume,
         pulumiStackName,
     ]) => {
         const template = handlebars.compile(fs.readFileSync("ec2-init-dedicated-worker.sh", "utf8"))
@@ -82,6 +84,7 @@ export const launchTemplate = new aws.ec2.LaunchTemplate("dedicated-worker", {
             configBucketName,
             capsuleCacheEfsId,
             datasetsEfsId,
+            sharedVolume,
             pulumiStackName,
         })).toString("base64")
     }),

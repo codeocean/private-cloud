@@ -121,6 +121,16 @@ interface VpcConfig {
     ingressCidrBlocks: string[],
 }
 
+interface MountTarget {
+    availabilityZoneId: string,
+    mountTargetIP: string,
+}
+
+interface SharedVolumeConfig {
+    efsId?: string,
+    mountTargets: MountTarget[],
+}
+
 interface WorkerConfig {
     autoScalingMaxSize: number,
     autoScalingMinSize: number,
@@ -133,6 +143,7 @@ interface WorkerConfig {
 interface WorkersConfig {
     general: WorkerConfig,
     gpu: WorkerConfig,
+    sharedVolume?: SharedVolumeConfig,
 }
 
 /**
@@ -159,8 +170,8 @@ export const stackname = pulumi.getStack()
 export const deploymentName = `codeocean-${project}-${stackname}`
 
 export const version: VersionConfig = {
-    label: "Matlab Online & reproducible runs",
-    version: "0.12.0",
+    label: "Productive Mode",
+    version: "0.13.0",
 }
 
 export const deployment: DeploymentConfig = {
@@ -246,6 +257,7 @@ export const workers: WorkersConfig = {
         maintainIdleWorker: config.getBoolean("workers.gpu.maintainIdleWorker") || false,
         useInstanceStore: config.getBoolean("workers.useInstanceStore") || false,
     },
+    sharedVolume: config.getObject<WorkersConfig>("workers")?.sharedVolume,
 }
 
 // Validation
@@ -260,12 +272,12 @@ export const features = config.getObject<FeaturesConfig>("features")
 
 export const ami: AMIConfig = {
     services: {
-        "us-east-1": config.get("services.ami") || "ami-01f3881e54024d855",
-        "eu-central-1": config.get("services.ami") || "ami-045376d7897854b34",
+        "us-east-1": config.get("services.ami") || "ami-0dcea3b9d4c3e63f4",
+        "eu-central-1": config.get("services.ami") || "ami-0f9acb50fb198d2b4",
     },
     worker: {
-        "us-east-1": config.get("workers.ami") || "ami-0a0b91d550642a72c",
-        "eu-central-1": config.get("workers.ami") || "ami-063e93a48b0f3b8f7",
+        "us-east-1": config.get("workers.ami") || "ami-0f0012aa4588e14d5",
+        "eu-central-1": config.get("workers.ami") || "ami-0a4dccebd573cb996",
     },
 }
 

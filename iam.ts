@@ -80,22 +80,6 @@ new aws.iam.RolePolicyAttachment("servicesinstancerole-s3-policy", {
     role: servicesInstanceRole.name,
 })
 
-if (config.services.aws.elasticsearch.enabled) {
-    new aws.iam.ServiceLinkedRole("elasticsearch", {
-        awsServiceName: "es.amazonaws.com",
-    })
-}
-
-new AWS.IAM({region: config.aws.region}).listRoles({
-    PathPrefix: "/aws-service-role/rds.amazonaws.com/",
-}).promise().then(response => {
-    if (response.Roles.length == 0) {
-        new aws.iam.ServiceLinkedRole("analyticsdb", {
-            awsServiceName: "rds.amazonaws.com",
-        })
-    }
-})
-
 // Workers
 
 export const workerInstanceRole = new aws.iam.Role("WorkerInstanceRole", {
@@ -199,6 +183,26 @@ const workerInstanceCloudWatchAccessPolicy = new aws.iam.Policy("WorkerInstanceC
 
 new aws.iam.RolePolicyAttachment("workerinstancerole-cloudwatch-policy", {
     policyArn: workerInstanceCloudWatchAccessPolicy.arn,
+    role: workerInstanceRole.name,
+})
+
+const workerInstanceMetadataAccessPolicy = new aws.iam.Policy("WorkerInstanceMetadataAccess", {
+    description: "Auto Scale Group permissions for EC2 worker instance",
+    policy: {
+        Version: "2012-10-17",
+        Statement: [{
+            Effect: "Allow",
+            Action: [
+                "ec2:DescribeInstanceStatus",
+                "ec2:DescribeAvailabilityZones",
+            ],
+            Resource: "*",
+        }],
+    },
+})
+
+new aws.iam.RolePolicyAttachment("workerinstancerole-metadata-policy", {
+    policyArn: workerInstanceMetadataAccessPolicy.arn,
     role: workerInstanceRole.name,
 })
 

@@ -9,6 +9,9 @@
 	"StatsExpiration": 3,
 	"AlgorithmMountPath": "/worker",
 	"DatasetsFolder": "/datasets",
+	{{#if config.workers.sharedVolume}}
+	"SharedFolder": "/shared",
+	{{/if}}
 	{{#if config.features.capsuleCache}}
 	"CapsuleCacheFolder": "/capsule-cache",
 	{{/if}}
@@ -75,10 +78,10 @@
 		"DockerImage": "524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/git:2019-03-14-a5f7d08"
 	},
 	"Tools": {
-		"DockerImage": "524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/tools:2020-06-28-5077a92"
+		"DockerImage": "524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/tools:2021-04-13-7370b9c"
 	},
 	"S3fS": {
-		"DockerImage": "524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/s3fs:2020-10-22-4d36418"
+		"DockerImage": "524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/s3fs:2021-04-14-96e5894"
 	},
 	{{#if config.flexlm.enabled}}
 	"FlexLM": {

@@ -147,7 +147,8 @@ AnalyticsDB:
   Password: {{secrets.analyticsdb.password}}
   SSL: true
   DBName: codeocean
-  TableName: objects
+  ObjectsTableName: objects
+  EventsTableName: events
 WDT:
   DockerImage: 524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/wdt:2019-02-14-b8f978f
   TempDir: wdt_temp
@@ -155,7 +156,7 @@ WDT:
   PortRangeBegin: 20000
   PortRangeEnd: 30000
 Tools:
-  DockerImage: 524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/tools:2020-06-28-5077a92
+  DockerImage: 524950183868.dkr.ecr.us-east-1.amazonaws.com/codeocean/tools:2021-04-13-7370b9c
 Segment:
   {{#if secrets.segment.backendApiKey}}
   APIKey: {{secrets.segment.backendApiKey}}
@@ -353,6 +354,10 @@ DedicatedMachines:
     - p3.16xlarge
     - p3dn.24xlarge
     - p4d.24xlarge
+    - g3s.xlarge
+    - g3.4xlarge
+    - g3.8xlarge
+    - g3.16xlarge
   RecommendedInstanceTypes:
     - r5.8xlarge
     - r5.16xlarge
@@ -388,6 +393,7 @@ Features:
   ShowExamples: true
   DisableLicences: true
   MathworksAccounts: true
+  PersistentCW: true
 Datasets:
   CacheTTLDays: 30
 Input:
@@ -466,6 +472,8 @@ Services:
     URL: http://pub:8103
   pubsim:
     URL: http://pubsim:8071
+  rational:
+    URL: http://rational:8600
   registry:
     URL: http://registry:5000
   result:
@@ -480,6 +488,8 @@ Services:
     URL: http://stat:8106
   swot:
     URL: http://swot:9900
+  system:
+    URL: http://system:8119
   token:
     URL: http://token:8107
   user:

@@ -27,6 +27,23 @@ mkdir /datasets
 echo "{{datasetsEfsId}}:/ /datasets efs _netdev,tls,iam 0 0" >> /etc/fstab
 until mount /datasets; do sleep 1; done
 
+# External EFS Shared Volume
+{{#if sharedVolume}}
+TOKEN=`curl -s -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 60"`
+EC2_AVAIL_ZONE=`curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/placement/availability-zone`
+EC2_REGION="`echo \"$EC2_AVAIL_ZONE\" | sed 's/[a-z]$//'`"
+EC2_ZONE_ID=`aws ec2 describe-availability-zones --region $EC2_REGION | jq -r '.AvailabilityZones[] | select(.ZoneName == "'$EC2_AVAIL_ZONE'").ZoneId'`
+
+{{#each sharedVolume.mountTargets}}
+if [[ "$EC2_ZONE_ID" = "{{this.availabilityZoneId}}" ]]; then echo "{{this.mountTargetIP}} {{../sharedVolume.efsId}}.efs.$EC2_REGION.amazonaws.com" >> /etc/hosts; fi
+{{/each}}
+
+mkdir /shared
+echo "{{sharedVolume.efsId}}.efs.$EC2_REGION.amazonaws.com:/ /shared efs _netdev,tls 0 0" >> /etc/fstab
+until mount /shared; do sleep 1; done
+chown -R 165536:165536 /shared
+{{/if}}
+
 # Set the config bucket configuration
 echo 'CONFIG_BUCKET="{{configBucketName}}"' >> /etc/default/codeocean
 # Set the pulumi stack name

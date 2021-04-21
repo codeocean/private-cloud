@@ -42,6 +42,20 @@ EC2_REGION="`echo \"$EC2_AVAIL_ZONE\" | sed 's/[a-z]$//'`"
 MACHINE_TYPE=`aws ec2 describe-tags --region $EC2_REGION --filters "Name=resource-id,Values=$EC2_INSTANCE_ID" | jq -r '.Tags[] | select(.Key=="codeocean.com/machine_type") | .Value'`
 echo 'MACHINE_TYPE='$MACHINE_TYPE >> /etc/default/codeocean
 
+# External EFS Shared Volume
+{{#if sharedVolume}}
+EC2_ZONE_ID=`aws ec2 describe-availability-zones --region $EC2_REGION | jq -r '.AvailabilityZones[] | select(.ZoneName == "'$EC2_AVAIL_ZONE'").ZoneId'`
+
+{{#each sharedVolume.mountTargets}}
+if [[ "$EC2_ZONE_ID" = "{{this.availabilityZoneId}}" ]]; then echo "{{this.mountTargetIP}} {{../sharedVolume.efsId}}.efs.$EC2_REGION.amazonaws.com" >> /etc/hosts; fi
+{{/each}}
+
+mkdir /shared
+echo "{{sharedVolume.efsId}}.efs.$EC2_REGION.amazonaws.com:/ /shared efs _netdev,tls 0 0" >> /etc/fstab
+until mount /shared; do sleep 1; done
+chown -R 165536:165536 /shared
+{{/if}}
+
 systemctl restart codeocean
 
 # Set cloudwatch logs agent conf

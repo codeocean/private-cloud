@@ -1,6 +1,28 @@
 CHANGELOG
 =========
 
+## 0.13.0 (2021-04-21)
+
+- Ability to connect and work directly with customer’s EFS volumes for computation
+- Dedicated Machines: Support for g3 family of GPU dedicated machines
+- Dedicate Machines: Fix to allow working large size external datasets
+- Increased Git repo size limit to 2GB to align with Github 
+- Continuous computational - Allow users to halt computation in Cloud Workstation, while preserving state to allow users to go back and continue from where they left off 
+- Improved Package Suggestions - Package suggestion for apt-get has been improved to allow Cloud Workstation changes to be reflected in Code Ocean’s IDE 
+- Admin Dashboard updates 
+- UI redesign
+- Simplified ability to create and manage base images 
+- New authentication screen for admin SSO and Google auth setup
+- Capsule Dashboard redesign
+- Look and feel redesign 
+- Increased filtering and searching functionality added to capsule dashboard 
+- Package Management: Based on customer feedback, we have enabled ability for users to manage multiple packages at the same time
+- File Browser context menu (right click).
+- Bulk delete of files and folders in File Browser
+- Upgrade S3FS in an effort to address memory issues.
+- Upgrade to use latest (1.16) Go version
+- New FE analytics pipeline
+
 ## 0.12.0 (2021-03-15)
 
 - Ability to see and utilize unique Code-Ocean built Example capsules available to all users in their dashboard 
