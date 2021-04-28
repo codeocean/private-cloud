@@ -23,6 +23,12 @@ export const launchTemplate = new aws.ec2.LaunchTemplate("dedicated-worker", {
     instanceType: config.workers.general.instanceType,
     keyName: config.aws.keyPair,
     blockDeviceMappings: [{
+        deviceName: "/dev/xvda",
+        ebs: {
+            encrypted: "true",
+            volumeSize: 8,
+        },
+    }, {
         deviceName: "/dev/sdf",
         ebs: {
             volumeType: "gp2",
@@ -107,7 +113,7 @@ pulumi.all([accountId, vpc.vpc.privateSubnets]).apply(([accountId, subnets]) => 
                     "ec2:DescribeInstances",
                     "ec2:DescribeInstanceTypes",
                     "ec2:DescribeSpotInstanceRequests",
-                    "ec2:CancelSpotInstanceRequests"
+                    "ec2:CancelSpotInstanceRequests",
                 ],
                 Resource: "*",
             }, {
