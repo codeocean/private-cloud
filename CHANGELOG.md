@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+## 0.13.1 (2021-05-03)
+
+- Fixed an issue with dedicated machines root volume encryption
+- Fixed an issue with github integration
+
 ## 0.13.0 (2021-04-21)
 
 - Ability to connect and work directly with customer’s EFS volumes for computation
