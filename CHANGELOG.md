@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.13.2 (2021-05-18)
+
+- Add support for RStudio 1.4 cloud workstation
+
 ## 0.13.1 (2021-05-03)
 
 - Fixed an issue with dedicated machines root volume encryption

@@ -4,7 +4,7 @@
 
 Install Pulumi:
 ```
-curl -fsSL https://get.pulumi.com | sh
+curl -fsSL https://get.pulumi.com | sh -s -- --version 2.25.2
 source ~/.bashrc
 ```
 Install Node.js:
@@ -21,7 +21,7 @@ sudo yum install -y git
 
 Install Pulumi:
 ```
-brew install pulumi
+curl -fsSL https://get.pulumi.com | sh -s -- --version 2.25.2
 ```
 Install Node.js:
 ```

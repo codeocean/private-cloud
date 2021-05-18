@@ -171,7 +171,7 @@ export const deploymentName = `codeocean-${project}-${stackname}`
 
 export const version: VersionConfig = {
     label: "Productive Mode",
-    version: "0.13.1",
+    version: "0.13.2",
 }
 
 export const deployment: DeploymentConfig = {
@@ -272,8 +272,8 @@ export const features = config.getObject<FeaturesConfig>("features")
 
 export const ami: AMIConfig = {
     services: {
-        "us-east-1": config.get("services.ami") || "ami-0189f6702bcb1a045",
-        "eu-central-1": config.get("services.ami") || "ami-0137146a66fe9aed1",
+        "us-east-1": config.get("services.ami") || "ami-07789f78829d8ebc2",
+        "eu-central-1": config.get("services.ami") || "ami-078fc9933d5f59ab8",
     },
     worker: {
         "us-east-1": config.get("workers.ami") || "ami-0f0012aa4588e14d5",
