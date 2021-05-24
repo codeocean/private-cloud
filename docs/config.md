@@ -9,11 +9,9 @@
 | auth.builtin.reCaptchaApiKey | Support ReCAPTCHA challenge if builtin auth is enabled | `false` | `secret:string`| - | |
 | auth.google.clientID | Google Sign In OAuth2 client ID | `false` | `string` | - | |
 | auth.google.clientSecret | Google Sign In OAuth2 client secret | `false` | `secret:string` | - ||
-| auth.saml.domain | SAML IdP domain | `false` | `string` | - | acmecorp.com |
-| auth.saml.metadataUrl | SAML IdP metadata URL | `false` | `string` | - | |
-| auth.saml.metadata.entityID | SAML IdP Entity ID | `false` | `string` | - | |
-| auth.saml.metadata.ssoUrl | SAML IdP SSO URL | `false` | `string` | - | |
-| auth.saml.metadata.certificate | SAML IdP x.509 certificate | `false` | `string` | - | |
+| saml.entityID | SAML IdP Entity ID | `false` | `string` | - | |
+| saml.ssoUrl | SAML IdP SSO URL | `false` | `string` | - | |
+| saml.certificate | SAML IdP x.509 certificate | `false` | `string` | - | |
 | auth.systemAPIKey | System API key  | `false` | `secret:string` | - | |
 | aws.redis.enabled | Enable managed AWS ElastiCache Redis | `false` | `boolean` | `false` | |
 | aws.redis.instanceType | AWS ElastiCache Redis instance type | `false` | `string` | `cache.t3.micro` | |

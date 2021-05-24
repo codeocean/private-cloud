@@ -40,23 +40,14 @@ Auth:
     PublicKeyPath: /app/keys/app.cert
     {{#if config.auth.saml}}
     {{#with config.auth.saml}}
-    IdentityProviders:
-      - Domain: {{domain}}
-        {{#if metadataUrl}}
-        MetadataURL: {{metadataUrl}}
-        {{/if}}
-        {{#if metadata}}
-        {{#with metadata}}
-        Metadata:
-          EntityID: {{entityID}}
-          SSOURL: {{ssoUrl}}
-          {{#*inline "Certificate"}}
+    DefaultIdentityProvider:
+      EntityID: {{entityID}}
+      SSOURL: {{ssoUrl}}
+      {{#*inline "Certificate"}}
 {{certificate}}
-          {{/inline}}
-          Certificate: |
-            {{> Certificate}}
-        {{/with}}
-        {{/if}}
+      {{/inline}}
+      Certificate: |
+        {{> Certificate}}
     {{/with}}
     {{/if}}
   OAuth2:
@@ -425,6 +416,8 @@ Services:
     URL: http://dimage:8113
   domain:
     URL: http://domain:8115
+  email:
+    URL: http://email:8121
   image:
     URL: http://dock:8090
   field:

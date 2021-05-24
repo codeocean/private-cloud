@@ -62,27 +62,14 @@ pulumi config set --secret auth.google.clientSecret
 
 To configure SAML SSO:
 ```
-pulumi config set --path auth.saml.domain
-```
-Then either configure the identity provider metadata URL:
-```
-pulumi config set --path auth.saml.metadataUrl
-```
-or metadata information:
-```
-pulumi config set --path auth.saml.metadata.entityID
-pulumi config set --path auth.saml.metadata.ssoUrl
-pulumi config set --path auth.saml.metadata.certificate < /path/to/cert
+pulumi config set --path saml.entityID
+pulumi config set --path saml.ssoUrl
+pulumi config set --path saml.certificate < /path/to/cert
 ```
 
 To configure GitHub organization support:
 ```
 pulumi config set --path gitProviders.github.org [org name]
-```
-
-The following command make sure that all required plugins are installed, and if not installing them :
-```
-pulumi plugin install
 ```
 
 ## Deployment

@@ -16,6 +16,10 @@ Install Git:
 ```
 sudo yum install -y git
 ```
+Install Pulumi plugins:
+```
+pulumi plugin install
+```
 
 ## macOS
 
@@ -26,4 +30,8 @@ curl -fsSL https://get.pulumi.com | sh -s -- --version 2.25.2
 Install Node.js:
 ```
 brew install node@14
+```
+Install Pulumi plugins:
+```
+pulumi plugin install
 ```

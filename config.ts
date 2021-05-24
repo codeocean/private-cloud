@@ -12,13 +12,9 @@ export interface AMIConfig {
 }
 
 interface SAMLIdPConfig {
-    domain: string,
-    metadataUrl?: string,
-    metadata?: {
-        entityID: string,
-        ssoUrl: string,
-        certificate: string,
-    }
+    entityID: string,
+    ssoUrl: string,
+    certificate: string,
 }
 
 interface AuthConfig {
@@ -171,7 +167,7 @@ export const deploymentName = `codeocean-${project}-${stackname}`
 
 export const version: VersionConfig = {
     label: "Productive Mode",
-    version: "0.13.2",
+    version: "0.13.3",
 }
 
 export const deployment: DeploymentConfig = {
@@ -232,7 +228,7 @@ export const auth: AuthConfig = {
         clientID: config.get("auth.google.clientID"),
         clientSecret: config.getSecret("auth.google.clientSecret"),
     },
-    saml: config.getObject("auth.saml"),
+    saml: config.getObject("saml"),
     systemAPIKey: config.getSecret("auth.systemAPIKey"),
 }
 
@@ -272,8 +268,8 @@ export const features = config.getObject<FeaturesConfig>("features")
 
 export const ami: AMIConfig = {
     services: {
-        "us-east-1": config.get("services.ami") || "ami-07789f78829d8ebc2",
-        "eu-central-1": config.get("services.ami") || "ami-078fc9933d5f59ab8",
+        "us-east-1": config.get("services.ami") || "ami-054d04c3e26909cd7",
+        "eu-central-1": config.get("services.ami") || "ami-0416815b8295032e6",
     },
     worker: {
         "us-east-1": config.get("workers.ami") || "ami-0f0012aa4588e14d5",
